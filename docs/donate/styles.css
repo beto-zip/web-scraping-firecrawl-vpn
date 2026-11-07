@@ -38,7 +38,7 @@ h1{font-size:clamp(34px,5vw,54px);line-height:1.08;letter-spacing:-.055em;margin
 .section-kicker,.mini-label{font-size:10px;letter-spacing:.12em;color:#8290a8;font-weight:850;margin:0 0 10px}
 .card-top h2{font-size:22px;letter-spacing:-.035em;margin:0}
 .heart-icon{height:44px;width:44px;display:grid;place-items:center;background:#fff0f0;color:#e24b65;border-radius:13px;font-size:25px}
-.methods{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:0 29px 24px;border-bottom:1px solid var(--line)}
+.methods{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:0 29px 24px;border-bottom:1px solid var(--line)}
 .method{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:9px;padding:13px 7px;border:1px solid #e1e7f2;background:#fff;border-radius:13px;color:#526079;font-size:11px;font-weight:750;min-height:93px;transition:transform .15s,background .15s,border-color .15s}
 .method:hover{transform:translateY(-2px);border-color:#9bb1ed}
 .method.active{background:#f0f4ff;border:1.5px solid #7896e6;color:#3155b7;box-shadow:inset 0 0 0 1px #dbe5ff}
@@ -46,7 +46,6 @@ h1{font-size:clamp(34px,5vw,54px);line-height:1.08;letter-spacing:-.055em;margin
 .coin-btc{background:linear-gradient(135deg,#ffbb46,#eb8b12)}
 .coin-xmr{background:linear-gradient(135deg,#fa994c,#e96c27)}
 .coin-eth{background:linear-gradient(135deg,#7f95ba,#394766);font-size:27px}
-.coin-paypal{background:linear-gradient(135deg,#69c3f7,#3065be);border-radius:9px;font-style:italic}
 .payment-content{padding:27px 29px 29px}
 .payment-heading{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:22px}
 .payment-heading h3{font-size:18px;letter-spacing:-.025em;margin:0}
@@ -66,18 +65,7 @@ h1{font-size:clamp(34px,5vw,54px);line-height:1.08;letter-spacing:-.055em;margin
 .qr-placeholder{font-size:56px;color:#c4d0e5;line-height:1}
 .qr-explainer strong{font-size:13px;color:#344663}
 .qr-explainer p{margin:6px 0 0;color:#8793a9;font-size:12px;line-height:1.65}
-.network-warning,.payment-disclaimer{font-size:11px;color:#8a95a8;line-height:1.65;margin:16px 1px 0}
-.frequency-picker{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid #dfe6f4;background:#eff3fa;border-radius:11px;gap:4px;padding:5px}
-.frequency-picker button{border:0;border-radius:8px;padding:11px 6px;color:#6d7c96;background:transparent;font-size:12px;font-weight:730}
-.frequency-picker button.active{background:#fff;box-shadow:0 2px 6px #2340771a;color:#375bbd}
-.frequency-hint{color:#8290a8;font-size:12px;line-height:1.6;margin:13px 0 16px}
-.amount-options{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
-.amount-options button{border:1px solid #dfe6f0;border-radius:10px;background:#fff;font-weight:800;color:#536582;padding:16px 7px}
-.amount-options button:hover{border-color:#8da6f1}
-.amount-options button.active{border:1.5px solid #577bdd;background:#edf3ff;color:#365fcb}
-.primary-button{width:100%;display:flex;justify-content:center;align-items:center;gap:12px;margin-top:20px;padding:16px 10px;border:0;border-radius:10px;color:#fff;background:linear-gradient(135deg,#5c84f1,#3f62ca);font-size:14px;font-weight:800;transition:filter .15s}
-.primary-button:hover:not(:disabled){filter:brightness(.95)}
-.primary-button:disabled{background:#bdc8dc;color:#f9fbff}
+.network-warning{font-size:11px;color:#8a95a8;line-height:1.65;margin:16px 1px 0}
 .feedback{font-size:12px;color:#246a49;min-height:0}
 .feedback:not(:empty){margin:0 29px 24px}
 .sidebar{display:flex;flex-direction:column;gap:17px}
