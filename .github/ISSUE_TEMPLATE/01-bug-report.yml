@@ -1,0 +1,79 @@
+name: "Bug report"
+description: "Report a reproducible defect in the VPN-protected Firecrawl stack."
+title: "bug: "
+labels:
+  - "bug"
+body:
+  - type: "markdown"
+    attributes:
+      value: "Search for duplicates and read [troubleshooting](../../docs/troubleshooting.md) first. **Do not publish suspected vulnerabilities, credentials, .env/.conf files, tokens, private keys, unredacted IPs, or sensitive logs.** For vulnerabilities, follow docs/security.md."
+  - type: "checkboxes"
+    id: "precheck"
+    attributes:
+      label: "Pre-submission checks"
+      options:
+        - label: "I searched existing issues and checked docs/troubleshooting.md."
+          required: true
+        - label: "I removed credentials, IP addresses and sensitive information from all attachments."
+          required: true
+  - type: "dropdown"
+    id: "component"
+    attributes:
+      label: "Affected component"
+      description: "Which area visibly fails?"
+      options:
+        - "Gluetun / WireGuard / Proton VPN"
+        - "Firecrawl API / crawl / workers"
+        - "Playwright"
+        - "Docker Compose / networks"
+        - "Setup / .env validation"
+        - "Scripts / unit or integration tests / CI"
+        - "Documentation"
+        - "Other"
+    validations:
+      required: true
+  - type: "textarea"
+    id: "summary"
+    attributes:
+      label: "Problem summary"
+      description: "Explain the failure and its impact."
+    validations:
+      required: true
+  - type: "textarea"
+    id: "steps"
+    attributes:
+      label: "Steps to reproduce"
+      description: "Provide commands, API requests or actions; replace credentials and IPs with placeholders. Note the tunnel state."
+      placeholder: "1. Configure ...\n2. Run ...\n3. Observe ..."
+    validations:
+      required: true
+  - type: "textarea"
+    id: "expected"
+    attributes:
+      label: "Expected behavior"
+      description: "State the outcome that should occur, including expected network isolation if relevant."
+    validations:
+      required: true
+  - type: "textarea"
+    id: "actual"
+    attributes:
+      label: "Actual behavior"
+      description: "What happened instead? Provide the error or observed result."
+    validations:
+      required: true
+  - type: "textarea"
+    id: "environment"
+    attributes:
+      label: "Environment"
+      description: "OS, Docker/Compose versions, project revision, relevant redacted configuration, and VPN region. Never paste a complete .env or WireGuard .conf."
+      placeholder: "OS:\nDocker / Compose:\nProject commit:\nVPN region:\nRelevant non-secret settings:"
+    validations:
+      required: true
+  - type: "textarea"
+    id: "evidence"
+    attributes:
+      label: "Sanitized logs / test report"
+      description: "Include only minimal redacted excerpts from docker compose logs, scripts/run-tests.sh or related commands."
+      render: "shell"
+    validations:
+      required: false

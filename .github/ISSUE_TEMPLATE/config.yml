@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: "Security disclosure guidance"
+    url: "https://github.com/beto-zip/web-scraping-firecrawl-vpn/blob/main/docs/security.md"
+    about: "Suspected vulnerabilities must be reported privately; do not post them in public issues."

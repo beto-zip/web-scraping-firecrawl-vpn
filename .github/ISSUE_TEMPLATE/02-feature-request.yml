@@ -1,0 +1,74 @@
+name: "Feature request"
+description: "Propose a feature or architecture change with clear acceptance criteria."
+title: "feat: "
+labels:
+  - "enhancement"
+body:
+  - type: "markdown"
+    attributes:
+      value: "Describe the user problem and a measurable outcome. Any feature must preserve **VPN-only outbound traffic, fail-closed behavior, private-network blocking, and secret protection**. Search existing issues before submitting. Do not disclose vulnerabilities here."
+  - type: "checkboxes"
+    id: "precheck"
+    attributes:
+      label: "Pre-submission check"
+      options:
+        - label: "I searched existing issues for the same request."
+          required: true
+  - type: "dropdown"
+    id: "area"
+    attributes:
+      label: "Primary area"
+      description: "Choose the workstream most affected."
+      options:
+        - "VPN / IP rotation / region selection"
+        - "Scraping / crawling / browser"
+        - "Networking / security"
+        - "Deployment / operations"
+        - "Monitoring / automated testing"
+        - "Documentation / developer experience"
+        - "Other"
+    validations:
+      required: true
+  - type: "textarea"
+    id: "problem"
+    attributes:
+      label: "Problem / use case"
+      description: "Who needs this and what is missing in the current behavior?"
+    validations:
+      required: true
+  - type: "textarea"
+    id: "proposal"
+    attributes:
+      label: "Proposed behavior"
+      description: "Describe externally observable behavior and what is out of scope."
+    validations:
+      required: true
+  - type: "textarea"
+    id: "acceptance"
+    attributes:
+      label: "Acceptance criteria"
+      description: "List testable outcomes as checkboxes."
+      placeholder: "- [ ] ...\n- [ ] ..."
+    validations:
+      required: true
+  - type: "textarea"
+    id: "security"
+    attributes:
+      label: "Security and architecture impact"
+      description: "Explain effects on WireGuard/Gluetun egress, tunnel-down fail-closed state, DNS/IPv6, private destinations, API exposure and secret handling. If no impact, explain why."
+    validations:
+      required: true
+  - type: "textarea"
+    id: "verification"
+    attributes:
+      label: "Test / verification strategy"
+      description: "Specify unit/Compose tests and live VPN checks that verify correctness and security invariants."
+    validations:
+      required: true
+  - type: "textarea"
+    id: "dependencies"
+    attributes:
+      label: "Dependencies / related issues / alternatives"
+      description: "Link prerequisites (e.g., #1, #3), relevant ADRs and other approaches evaluated."
+    validations:
+      required: false
