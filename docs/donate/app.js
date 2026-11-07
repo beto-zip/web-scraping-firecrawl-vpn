@@ -19,7 +19,7 @@
       publicAddress: "Endereço público para recebimento",
       qrTitle: "QR Code",
       qrPending: "Disponível quando a carteira oficial for configurada.",
-      qrReady: "Escaneie para copiar o endereço público desta rede.",
+      qrReady: "Escaneie com sua carteira para carregar os dados de pagamento.",
       qrUnavailable: "O QR Code não carregou. Confira e copie o endereço exibido.",
       networkWarning: "Confira a rede e o endereço antes de enviar. Transações em blockchain podem ser irreversíveis.",
       whySupport: "Por que apoiar?",
@@ -51,7 +51,7 @@
       publicAddress: "Public receiving address",
       qrTitle: "QR code",
       qrPending: "Available after an official wallet is configured.",
-      qrReady: "Scan to copy the public receiving address for this network.",
+      qrReady: "Scan with your wallet to load the payment details.",
       qrUnavailable: "The QR code failed to load. Verify and copy the displayed address.",
       networkWarning: "Verify the network and receiving address before sending. Blockchain transactions may be irreversible.",
       whySupport: "Why support?",
@@ -133,8 +133,11 @@
 
     if (enabled && typeof window.QRCode === "function") {
       try {
+        const qrPayload = state.method === "btc"
+          ? `bitcoin:${address}${wallet.message ? `?message=${encodeURIComponent(wallet.message)}` : ""}`
+          : address;
         new window.QRCode(qrNode, {
-          text: address,
+          text: qrPayload,
           width: 184,
           height: 184,
           colorDark: "#172440",
