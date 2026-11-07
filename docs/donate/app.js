@@ -13,7 +13,7 @@
       lead: "Este software é gratuito. O apoio da comunidade poderá ajudar com infraestrutura, testes e documentação, sem mudar o acesso livre ao código.",
       previewNotice: "Prévia de interface. As doações não estão habilitadas. Esta página não solicita nem recebe pagamentos.",
       supportOptions: "FORMAS DE APOIO",
-      selectMethod: "Escolha como contribuir",
+      selectMethod: "Selecione uma criptomoeda",
       selectedNetwork: "REDE SELECIONADA",
       onchain: "On-chain",
       publicAddress: "Endereço público para recebimento",
@@ -22,15 +22,6 @@
       qrReady: "Escaneie para copiar o endereço público desta rede.",
       qrUnavailable: "O QR Code não carregou. Confira e copie o endereço exibido.",
       networkWarning: "Confira a rede e o endereço antes de enviar. Transações em blockchain podem ser irreversíveis.",
-      paypalDonation: "DOAÇÃO VIA PAYPAL",
-      chooseFrequency: "Escolha a frequência",
-      once: "Uma vez",
-      monthly: "Mensal",
-      yearly: "Anual",
-      paypalFrequencyHint: "Cada valor e frequência exige um link de pagamento oficial configurado.",
-      paypalUnavailable: "PayPal indisponível",
-      paypalContinue: "Continuar para o PayPal",
-      externalPaypal: "O pagamento ocorrerá no site oficial do PayPal, não nesta página.",
       whySupport: "Por que apoiar?",
       whyBody: "Este projeto é mantido de forma independente. Eventuais contribuições voluntárias serão destinadas a custos de manutenção, documentação e testes.",
       benefitOne: "Código aberto e gratuito",
@@ -45,7 +36,6 @@
       copyAddress: "Copiar endereço",
       copied: "Endereço copiado para a área de transferência.",
       copyError: "Não foi possível copiar. Selecione o endereço manualmente.",
-      noPayment: "Meio de pagamento ainda indisponível.",
       active: "Ativo",
       preview: "Prévia"
     },
@@ -55,7 +45,7 @@
       lead: "This software is free. Community support may help cover infrastructure, testing and documentation while keeping the code freely accessible.",
       previewNotice: "Interface preview. Donations are not enabled. This page does not request or receive payments.",
       supportOptions: "SUPPORT OPTIONS",
-      selectMethod: "Choose how to contribute",
+      selectMethod: "Select a cryptocurrency",
       selectedNetwork: "SELECTED NETWORK",
       onchain: "On-chain",
       publicAddress: "Public receiving address",
@@ -64,15 +54,6 @@
       qrReady: "Scan to copy the public receiving address for this network.",
       qrUnavailable: "The QR code failed to load. Verify and copy the displayed address.",
       networkWarning: "Verify the network and receiving address before sending. Blockchain transactions may be irreversible.",
-      paypalDonation: "PAYPAL DONATION",
-      chooseFrequency: "Choose the frequency",
-      once: "One time",
-      monthly: "Monthly",
-      yearly: "Yearly",
-      paypalFrequencyHint: "Every amount and frequency needs a configured official payment link.",
-      paypalUnavailable: "PayPal unavailable",
-      paypalContinue: "Continue to PayPal",
-      externalPaypal: "Payments are handled on the official PayPal website, not on this page.",
       whySupport: "Why support?",
       whyBody: "This project is maintained independently. Any voluntary contributions will go toward maintenance, documentation and testing costs.",
       benefitOne: "Free and open-source code",
@@ -87,43 +68,23 @@
       copyAddress: "Copy address",
       copied: "Address copied to clipboard.",
       copyError: "Unable to copy. Please select the address manually.",
-      noPayment: "Payment method not available yet.",
       active: "Active",
       preview: "Preview"
     }
   };
 
-  const methods = ["btc", "xmr", "eth", "paypal"];
-  const frequencies = ["once", "monthly", "yearly"];
-  const amounts = ["5", "10", "25", "50"];
+  const methods = ["btc", "xmr", "eth"];
   const state = {
     language: (navigator.language || "").toLowerCase().startsWith("pt") ? "pt" : "en",
-    method: "btc",
-    frequency: "once",
-    amount: "25"
+    method: "btc"
   };
   const anyWalletConfigured = ["btc", "xmr", "eth"].some((coin) =>
     !!String(config.wallets?.[coin]?.address || "").trim()
   );
-  const anyPayPalConfigured = frequencies.some((frequency) =>
-    amounts.some((amount) => !!getValidPayPalURL(config.paypal?.[frequency]?.[amount]))
-  );
-  const isLive = config.stage === "live" && (anyWalletConfigured || anyPayPalConfigured);
+  const isLive = config.stage === "live" && anyWalletConfigured;
 
   function dictionary() {
     return dictionaries[state.language];
-  }
-
-  function getValidPayPalURL(value) {
-    if (typeof value !== "string" || !value.trim()) return "";
-    try {
-      const url = new URL(value);
-      const acceptedHosts = ["paypal.com", "www.paypal.com", "paypal.me", "www.paypal.me"];
-      if (url.protocol !== "https:" || !acceptedHosts.includes(url.hostname) || url.username || url.password) return "";
-      return url.toString();
-    } catch {
-      return "";
-    }
   }
 
   function changeLanguage() {
@@ -148,20 +109,12 @@
   }
 
   function render() {
-    $$(".method").forEach((button) => {
+    $(".method").forEach((button) => {
       const selected = button.dataset.method === state.method;
       button.classList.toggle("active", selected);
       button.setAttribute("aria-pressed", String(selected));
     });
-
-    $("#cryptoPanel").hidden = state.method === "paypal";
-    $("#paypalPanel").hidden = state.method !== "paypal";
-
-    if (state.method === "paypal") {
-      renderPayPal();
-    } else {
-      renderCrypto();
-    }
+    renderCrypto();
   }
 
   function renderCrypto() {
@@ -202,42 +155,11 @@
     if (enabled) $("#qrDescription").textContent = dictionary().qrUnavailable;
   }
 
-  function renderPayPal() {
-    $$("[data-frequency]").forEach((button) => {
-      const selected = button.dataset.frequency === state.frequency;
-      button.classList.toggle("active", selected);
-      button.setAttribute("aria-pressed", String(selected));
-    });
-
-    $$("[data-amount]").forEach((button) => {
-      const selected = button.dataset.amount === state.amount;
-      button.classList.toggle("active", selected);
-      button.setAttribute("aria-pressed", String(selected));
-    });
-
-    const href = getValidPayPalURL(config.paypal?.[state.frequency]?.[state.amount]);
-    $("#paypalAction").disabled = !(isLive && href);
-    $("#paypalAction span:first-child").textContent =
-      isLive && href ? dictionary().paypalContinue : dictionary().paypalUnavailable;
-  }
-
-  $$(".method").forEach((button) => button.addEventListener("click", () => {
+  $(".method").forEach((button) => button.addEventListener("click", () => {
     if (!methods.includes(button.dataset.method)) return;
     state.method = button.dataset.method;
     $("#copyFeedback").textContent = "";
     render();
-  }));
-
-  $$("[data-frequency]").forEach((button) => button.addEventListener("click", () => {
-    if (!frequencies.includes(button.dataset.frequency)) return;
-    state.frequency = button.dataset.frequency;
-    renderPayPal();
-  }));
-
-  $$("[data-amount]").forEach((button) => button.addEventListener("click", () => {
-    if (!amounts.includes(button.dataset.amount)) return;
-    state.amount = button.dataset.amount;
-    renderPayPal();
   }));
 
   $("#copyAddress").addEventListener("click", async () => {
@@ -250,12 +172,6 @@
       $("#walletAddress").select();
       $("#copyFeedback").textContent = dictionary().copyError;
     }
-  });
-
-  $("#paypalAction").addEventListener("click", () => {
-    const href = getValidPayPalURL(config.paypal?.[state.frequency]?.[state.amount]);
-    if (!isLive || !href) return;
-    window.open(href, "_blank", "noopener,noreferrer");
   });
 
   $("#languageButton").addEventListener("click", () => {
