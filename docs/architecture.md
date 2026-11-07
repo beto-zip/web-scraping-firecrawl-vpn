@@ -98,6 +98,10 @@ the API to `127.0.0.1` and exposes it to containers only through the `edge` netw
   `depends_on.restart: true` was tried and removed: compose restarted the dependents before Gluetun was
   back, leaving them on a dead namespace (see [spike-notes.md](spike-notes.md)). An optional autoheal
   sidecar is on the roadmap.
+- **Tunnel reconnect is not a restart:** `scripts/rotate-ip.sh` reconnects the tunnel through Gluetun's
+  control server (`PUT /v1/vpn/status`). The container and its namespace survive, so `api` and
+  `playwright` keep working without a restart. Requests open during the reconnect fail (fail-closed),
+  and the first scrape right after it can fail once; callers should retry.
 - **No engine selection:** self-hosted Firecrawl picks the playwright engine first; requests cannot
   force the plain fetch engine. All engines share the namespace, so egress guarantees are identical.
 - **VPN IPs get blocked** by some sites. This is inherent to scraping through a VPN.
