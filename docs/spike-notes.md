@@ -112,3 +112,13 @@ Ports in shared netns: 3000, 3002, 3004, 3005, 8000 — no conflicts observed.
 `SERVER_COUNTRIES=Atlantis` → `docker compose up -d` exits rc=1 in seconds with
 `dependency failed to start: container ...-gluetun-1 is unhealthy`; gluetun log lists valid countries;
 `api` and `playwright` stay `Created` (never started, so no egress). No hang.
+
+## Correction (final review) — `depends_on.restart` is not reliable
+
+In the final full-suite run, `docker compose restart gluetun` restarted `api`/`playwright` at
+04:08:19 and Gluetun only at 04:08:39. The dependents joined the dying namespace and kept only `lo`
+(`getaddrinfo EAI_AGAIN nuq-postgres` for minutes). The spike's success was timing luck.
+
+**Decision:** remove `restart: true` from `depends_on`; any Gluetun restart is fail-closed and recovered
+with `docker compose restart api playwright`. `test-recovery.sh` asserts both cases
+(`gluetun_restart_fails_closed`, `compose_restart_fails_closed`) and both recoveries.

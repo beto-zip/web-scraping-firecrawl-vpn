@@ -17,8 +17,8 @@ docker compose logs gluetun | tail -50
 
 ## API stopped answering after Gluetun restarted
 
-When Gluetun restarts outside compose (crash, `docker restart`, daemon restart), `api` and
-`playwright` lose their network namespace. They stay offline (no leak) until restarted:
+Whenever Gluetun restarts (crash, `docker restart`, daemon restart or `docker compose restart gluetun`),
+`api` and `playwright` lose their network namespace. They stay offline (no leak) until restarted:
 
 ```bash
 docker compose restart api playwright

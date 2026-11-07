@@ -12,10 +12,11 @@ x-logging: &logging
     max-size: "10m"
     max-file: "3"
 
+# No `restart: true`: compose restarts dependents before gluetun is back, leaving them on a
+# dead namespace. After any gluetun restart run: docker compose restart api playwright
 x-depends-on-gluetun: &depends-on-gluetun
   gluetun:
     condition: service_healthy
-    restart: true
 
 services:
   gluetun:

@@ -92,10 +92,12 @@ the API to `127.0.0.1` and exposes it to containers only through the `edge` netw
 
 ## Known limitations
 
-- **Gluetun restarted outside compose** (crash, `docker restart`, daemon restart): `api` and
-  `playwright` lose their namespace and have no network (fail-closed). Recover with
-  `docker compose restart api playwright`. A compose-managed restart (`docker compose restart gluetun`)
-  recovers by itself through `depends_on.restart`. After Gluetun is **recreated**, use `docker compose up -d`.
+- **Any Gluetun restart** (crash, `docker restart`, daemon restart, `docker compose restart gluetun`):
+  `api` and `playwright` lose their namespace and have no network (fail-closed). Recover with
+  `docker compose restart api playwright`. After Gluetun is **recreated**, use `docker compose up -d`.
+  `depends_on.restart: true` was tried and removed: compose restarted the dependents before Gluetun was
+  back, leaving them on a dead namespace (see [spike-notes.md](spike-notes.md)). An optional autoheal
+  sidecar is on the roadmap.
 - **No engine selection:** self-hosted Firecrawl picks the playwright engine first; requests cannot
   force the plain fetch engine. All engines share the namespace, so egress guarantees are identical.
 - **VPN IPs get blocked** by some sites. This is inherent to scraping through a VPN.

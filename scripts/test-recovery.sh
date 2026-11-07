@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Proves persistence across down/up and documents Gluetun-restart behavior:
-# a restart outside compose leaves api without network (fail-closed) until
-# `docker compose restart api playwright`; a compose-managed restart recovers by itself.
+# Proves persistence across down/up and documents Gluetun-restart behavior: any Gluetun
+# restart (docker or compose) leaves api/playwright without network (fail-closed) until
+# `docker compose restart api playwright`.
 # Usage: scripts/test-recovery.sh   (stack must be running; restarts containers; reads .env)
 set -euo pipefail
 
@@ -65,12 +65,21 @@ else
   fail manual_recovery "API did not recover after 'docker compose restart api playwright'"
 fi
 
-# --- compose-managed restart recovers by itself (depends_on.restart) ---------------
+# --- compose-managed restart: also fail-closed, recovered by the same command ------
+# (depends_on.restart restarted api before gluetun was back, leaving it on a dead netns.)
 dc restart gluetun >/dev/null 2>&1 || true
-if api_scrapes_within 300; then
-  pass compose_restart_recovers "docker compose restart gluetun"
+wait_healthy gluetun 180 || true
+sleep 5
+if api_live; then
+  fail compose_restart_fails_closed "API reachable right after 'docker compose restart gluetun' (unexpected)"
 else
-  fail compose_restart_recovers "API did not recover after 'docker compose restart gluetun'"
+  pass compose_restart_fails_closed "api has no network until restarted"
+fi
+dc restart api playwright >/dev/null 2>&1 || true
+if api_scrapes_within 300; then
+  pass manual_recovery_after_compose_restart "docker compose restart api playwright"
+else
+  fail manual_recovery_after_compose_restart "API did not recover after 'docker compose restart api playwright'"
 fi
 
 report_summary
