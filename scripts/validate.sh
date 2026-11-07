@@ -23,14 +23,26 @@ done
 
 report_init "validate ($(basename "$ENV_FILE"))"
 
-# The env file is authoritative: drop inherited values for every checked variable.
-unset WIREGUARD_PRIVATE_KEY API_BIND_ADDRESS FIRECRAWL_PORT "${REQUIRED_SECRETS[@]}"
+# docker compose gives exported shell variables priority over .env. Remember inherited
+# values, validate the file alone, then fail if the shell would override it.
+CHECKED_VARS=(WIREGUARD_PRIVATE_KEY API_BIND_ADDRESS FIRECRAWL_PORT "${REQUIRED_SECRETS[@]}")
+declare -A INHERITED=()
+for name in "${CHECKED_VARS[@]}"; do
+  [[ -n "${!name+x}" ]] && INHERITED[$name]="${!name}"
+  unset "$name"
+done
 
 if ! load_env "$ENV_FILE"; then
   fail env_file_readable "missing file or CRLF line endings (see message above)"
   report_summary || exit 1
 fi
 pass env_file_readable
+
+for name in "${!INHERITED[@]}"; do
+  if [[ "${INHERITED[$name]}" != "${!name:-}" ]]; then
+    fail "inherited_$name" "$name is exported in your shell with a different value; docker compose would use it instead of $(basename "$ENV_FILE"). Run: unset $name"
+  fi
+done
 
 # WireGuard key: base64 of exactly 32 bytes.
 key="${WIREGUARD_PRIVATE_KEY:-}"
@@ -82,7 +94,7 @@ if [[ "$SKIP_COMPOSE" -eq 0 ]]; then
   if dc --env-file "$ENV_FILE" config -q >/dev/null 2>&1; then
     pass compose_config
   else
-    fail compose_config "docker compose config failed; run: docker compose --env-file $ENV_FILE config"
+    fail compose_config "docker compose config failed; see the error with: docker compose --env-file $ENV_FILE config -q"
   fi
 fi
 

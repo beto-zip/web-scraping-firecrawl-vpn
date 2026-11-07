@@ -52,3 +52,23 @@ test_inherited_env_does_not_mask_missing_value() {
   grep -v '^BULL_AUTH_KEY=' "$F/valid.env" > "$TMP/nobull.env"
   BULL_AUTH_KEY=from-shell assert_rc 1 env BULL_AUTH_KEY=from-shell "$V" --env "$TMP/nobull.env" --skip-compose
 }
+
+# docker compose gives shell variables priority over .env: an exported value that differs
+# from the file would change the real deployment, so validate must fail.
+test_inherited_public_bind_rejected() {
+  assert_rc 1 env API_BIND_ADDRESS=0.0.0.0 "$V" --env "$F/valid.env" --skip-compose
+}
+
+test_inherited_identical_value_accepted() {
+  assert_rc 0 env API_BIND_ADDRESS=127.0.0.1 "$V" --env "$F/valid.env" --skip-compose
+}
+
+# The hint shown when compose config fails must not lead the user to print every secret.
+test_compose_failure_hint_is_quiet() {
+  mkdir -p "$TMP/bin"
+  printf '#!/usr/bin/env bash\nexit 1\n' > "$TMP/bin/docker"
+  chmod +x "$TMP/bin/docker"
+  local out
+  out="$(PATH="$TMP/bin:$PATH" "$V" --env "$F/valid.env" 2>&1)" || true
+  [[ "$out" == *"config -q"* ]] || fail_test "hint should suggest 'config -q': $out"
+}
