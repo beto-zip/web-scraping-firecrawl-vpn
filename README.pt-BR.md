@@ -144,7 +144,7 @@ A reconexão pode manter o mesmo IP; requisições em andamento podem falhar. Ap
 | Operação simplificada | Executar ferramentas inteiramente via Docker | [Planejado #2](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues/2) |
 | Resiliência | Detecção de bloqueios, políticas de retry e fluxo anti-bloqueio | [Planejado #3](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues/3) |
 | Orquestração | Fila persistente de URLs com retomada | [Planejado #4](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues/4) |
-| Apoio comunitário | Avaliar doações/patrocínios voluntários **após** validação e release pública estável | **Etapa futura — sem links de pagamento** |
+| Apoio comunitário | Avaliar doações/patrocínios voluntários **após** validação e release pública estável | [Issue futura #10](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues/10) — sem links de pagamento |
 
 Acompanhe o trabalho nas [issues do GitHub](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues). Funcionalidades futuras **não** estão disponíveis na stack atual.
 
