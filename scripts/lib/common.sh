@@ -127,3 +127,43 @@ cap_bit_set() {
   [[ "$hex" =~ ^[0-9a-fA-F]{1,16}$ && "$bit" =~ ^[0-9]+$ ]] || return 2
   (( (16#$hex >> bit) & 1 ))
 }
+
+# ---------- vpn (gluetun control server, reached inside gluetun's namespace) ----------
+CONTROL_URL="http://127.0.0.1:8000"
+
+# Prints the tunnel's public IP, empty when unknown.
+vpn_public_ip() {
+  netns_probe -s -m 10 -H "X-API-Key: ${GLUETUN_CONTROL_API_KEY:-}" "$CONTROL_URL/v1/publicip/ip" </dev/null 2>/dev/null \
+    | jqr -r '.public_ip // empty' 2>/dev/null || true
+}
+
+# vpn_set_status stopped|running. Returns 2 on a bad value, otherwise curl's code (-f: HTTP errors fail).
+vpn_set_status() {
+  [[ "${1:-}" == stopped || "${1:-}" == running ]] || return 2
+  netns_probe -sf -m 15 -X PUT -H "X-API-Key: ${GLUETUN_CONTROL_API_KEY:-}" -H 'Content-Type: application/json' \
+    -d "{\"status\":\"$1\"}" "$CONTROL_URL/v1/vpn/status" </dev/null >/dev/null 2>&1
+}
+
+# Waits until the tunnel reports a public IP and gluetun is healthy. Hard total limit (default 180s).
+vpn_wait_up() {
+  local timeout="${1:-180}" deadline left
+  deadline=$((SECONDS + timeout))
+  while (( SECONDS < deadline )); do
+    if [[ -n "$(vpn_public_ip)" ]]; then
+      left=$((deadline - SECONDS))
+      (( left > 0 )) && wait_healthy gluetun "$left" && return 0
+      return 1
+    fi
+    sleep 5
+  done
+  return 1
+}
+
+# Host's own public IP (outside the tunnel), empty when unknown.
+host_public_ip() { curl -s -m 10 https://api.ipify.org 2>/dev/null || true; }
+
+# IP that a scraped target sees: Firecrawl scrapes an IP echo page; body comes back as markdown.
+scrape_seen_ip() {
+  curl -s -m 120 -X POST "$(api_url)/v2/scrape" -H 'Content-Type: application/json' -d "$1" 2>/dev/null \
+    | jqr -r 'if .success == true then (.data.markdown // "" | gsub("\\s"; "")) else empty end' 2>/dev/null || true
+}

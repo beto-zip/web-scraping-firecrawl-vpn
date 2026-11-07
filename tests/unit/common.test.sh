@@ -60,3 +60,15 @@ test_cap_bit_set_rejects_non_hex() {
   [[ ! -e "$TMP/pwned" ]] || fail_test "input was evaluated"
   assert_rc 2 cap_bit_set '' 13
 }
+
+test_vpn_set_status_rejects_bad_value() {
+  assert_rc 2 vpn_set_status paused
+  assert_rc 2 vpn_set_status ""
+}
+
+test_scrape_seen_ip_extracts_trimmed_body() {
+  curl() { printf '%s' '{"success":true,"data":{"markdown":" 45.1.2.3\n"}}'; }
+  assert_eq "45.1.2.3" "$(scrape_seen_ip '{}')" success
+  curl() { printf '%s' '{"success":false,"error":"blocked"}'; }
+  assert_eq "" "$(scrape_seen_ip '{}')" failure
+}

@@ -17,3 +17,6 @@ spike/
 
 # Test reports
 reports/
+
+# Superpowers execution workspace
+.superpowers/
