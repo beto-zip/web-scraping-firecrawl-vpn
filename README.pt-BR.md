@@ -2,95 +2,95 @@
 
 # 🛡️ Firecrawl sobre Proton VPN
 
-**Web scraping self-hosted com tráfego de saída pela VPN e isolamento de rede fail-closed.**
+**Firecrawl self-hosted com tráfego de saída roteado pela Proton VPN e isolamento de rede projetado para falhar de forma segura.**
 
 [![CI](https://github.com/beto-zip/web-scraping-firecrawl-vpn/actions/workflows/validate.yml/badge.svg)](https://github.com/beto-zip/web-scraping-firecrawl-vpn/actions/workflows/validate.yml)
 [![Licença: MIT](https://img.shields.io/badge/licen%C3%A7a-MIT-blue.svg)](LICENSE)
-![Docker Compose](https://img.shields.io/badge/deploy-Docker%20Compose-2496ED?logo=docker&logoColor=white)
-![WireGuard](https://img.shields.io/badge/t%C3%BAnel-WireGuard-88171A?logo=wireguard&logoColor=white)
+![Docker Compose](https://img.shields.io/badge/deployment-Docker_Compose-2496ED?logo=docker&logoColor=white)
+![WireGuard](https://img.shields.io/badge/tunnel-WireGuard-88171A?logo=wireguard&logoColor=white)
 
 [English](README.md) · **Português (Brasil)**
 
-[Por quê?](#por-que-este-projeto) · [Arquitetura](#arquitetura) · [Instalação](#início-rápido) · [Segurança](#limites-de-segurança) · [Roadmap](#status-do-projeto-e-roadmap) · [Apoio](#apoie-o-projeto)
+[Visão geral](#visão-geral) · [Arquitetura](#arquitetura) · [Início rápido](#início-rápido) · [Segurança](#segurança-e-limitações) · [Status](#status-do-projeto) · [Documentação](#documentação) · [Apoio](#apoie-o-projeto-planejado)
 
 </div>
 
 > [!IMPORTANT]
-> **Projeto comunitário e integração não oficial.** Sem afiliação com [Firecrawl](https://github.com/firecrawl/firecrawl), [Proton VPN](https://protonvpn.com/) ou [Gluetun](https://github.com/qdm12/gluetun). A stack **ainda não foi validada no servidor Linux de destino** ([issue #6](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues/6)); execute os testes de rede antes de confiar nela para cargas sensíveis.
+> **A validação da implantação ainda está pendente.** O código e os testes existem, mas a stack completa **ainda não foi verificada no servidor Linux com Tailscale/OpenClaw de destino** ([issue #6](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues/6)). Não trate o kill switch ou a proteção contra vazamentos como comprovados em produção antes de executar os testes de rede no seu servidor.
+>
+> **Projeto comunitário independente.** Sem afiliação oficial com Firecrawl, Proton VPN ou Gluetun.
 
-## Por que este projeto?
+## Visão geral
 
-Ferramentas de scraping podem expor acidentalmente o IP do servidor quando apenas parte das requisições usa proxy. Este projeto adota outra abordagem: **a API do Firecrawl e o Playwright compartilham o namespace de rede do Gluetun**, submetendo o tráfego ao mesmo firewall e túnel WireGuard da Proton VPN.
+Configurar um proxy HTTP não garante que todos os scrapers, navegadores, consultas DNS e clientes internos o utilizem. Este projeto executa a API/workers do Firecrawl e o Playwright no **namespace de rede compartilhado do Gluetun**. O Gluetun fornece o túnel WireGuard da Proton VPN e o firewall; os serviços de scraping não possuem interfaces Docker externas independentes.
 
-| Recurso | Funcionamento |
+| Recurso | Implementação |
 |:--|:--|
-| 🛡️ **Saída fail-closed** | O firewall bloqueia acesso direto à internet quando o túnel VPN fica indisponível. |
-| 🌍 **Local de saída selecionável** | Configure país/cidade no `.env`; solicite outro IP com `scripts/rotate-ip.sh`. |
-| 🧩 **Firecrawl self-hosted** | API scrape/crawl, workers e navegador Playwright em Docker Compose. |
-| 🔒 **Backend isolado** | Redis, RabbitMQ e PostgreSQL permanecem numa rede Docker interna. |
-| 🔌 **Integração com agentes** | API local em `127.0.0.1:3002` ou containers confiáveis em `firecrawl-edge`. |
-| 🧪 **Testes de rede** | Scripts verificam IP de saída, kill switch, rotação e recuperação dos serviços. |
+| 🛡️ Saída pela VPN | Firecrawl e Playwright utilizam `network_mode: service:gluetun`. |
+| 🚫 Projeto fail-closed | O firewall do Gluetun foi configurado para negar a saída direta se o túnel cair; **a validação no servidor real ainda está pendente**. |
+| 🌍 Seleção de saída | Configure país/cidade da Proton e solicite reconexão com `scripts/rotate-ip.sh`. **Não há garantia** de IP diferente. |
+| 🔒 Backend isolado | Redis, RabbitMQ e PostgreSQL usam uma rede Docker com `internal: true`. |
+| 🔌 Integração local | API local em `127.0.0.1:3002` e acesso por containers *confiáveis* via `firecrawl-edge`. |
+| 🧪 Verificações | Scripts cobrem configuração, saída VPN, kill switch, rotação e recuperação. O CI não testa uma VPN real. |
 
 ## Arquitetura
 
 ```mermaid
 flowchart LR
-    LOCAL["Cliente local<br/>127.0.0.1:3002"]
-    AGENT["Agente / app confiável<br/>rede firecrawl-edge"]
+    HOST["Cliente local<br/>127.0.0.1:3002"]
+    AGENT["Containers confiáveis<br/>firecrawl-edge"]
 
-    subgraph NETNS["Namespace de rede compartilhado — Gluetun"]
-        GL["Gluetun<br/>Firewall · WireGuard · DNS over TLS"]
-        API["API Firecrawl + workers<br/>:3002"]
-        PW["Navegador Playwright<br/>:3000"]
-        GL <--> API
-        API -->|"localhost:3000"| PW
+    subgraph SHARED["Namespace de rede compartilhado — Gluetun"]
+        GL["Gluetun<br/>WireGuard + firewall + DNS"]
+        FC["API Firecrawl + workers<br/>:3002"]
+        PW["Playwright<br/>:3000"]
+        FC -->|"localhost:3000"| PW
     end
 
-    subgraph BACKEND["Rede backend interna"]
+    subgraph PRIVATE["Rede de backend interna"]
         REDIS[("Redis")]
-        MQ[("RabbitMQ")]
-        DB[("nuq-postgres")]
+        QUEUE[("RabbitMQ")]
+        PG[("PostgreSQL")]
     end
 
-    LOCAL -->|"porta loopback"| GL
-    AGENT -->|"http://gluetun:3002"| GL
-    API --> REDIS
-    API --> MQ
-    API --> DB
-    GL -->|"tun0 / WireGuard"| PROTON["Proton VPN"]
-    PROTON --> WEB["Sites públicos"]
+    HOST -->|"porta publicada em loopback"| GL
+    AGENT -->|"gluetun:3002"| GL
+    FC --> REDIS
+    FC --> QUEUE
+    FC --> PG
+    GL -->|"WireGuard / tun0"| VPN["Proton VPN"]
+    VPN --> WEB["Sites públicos"]
 ```
 
-**O ponto principal:** `api` e `playwright` usam `network_mode: service:gluetun`. Eles **não** possuem interfaces Docker independentes para saída. O firewall do Gluetun controla o túnel; a rede `backend` possui `internal: true`, e a rede `edge` atende consumidores confiáveis da API.
-
-Detalhes da implementação e decisões: [Arquitetura](docs/architecture.md) e [Segurança](docs/security.md).
+**Ponto essencial:** a API e o navegador compartilham a rede do Gluetun, enquanto os bancos de dados ficam em uma rede interna separada. Isso representa o **projeto da arquitetura**, não uma comprovação de eliminação de todos os riscos e vazamentos. Detalhes: [arquitetura](docs/architecture.md) e [modelo de segurança](docs/security.md).
 
 ## Início rápido
 
-### Pré-requisitos
+### Requisitos
 
-- Servidor Linux com Docker Engine, Docker Compose v2 e `/dev/net/tun`.
-- **Plano pago da Proton VPN** com configuração WireGuard gerada; veja o [guia Proton](docs/protonvpn.md).
-- `curl` para os testes, `openssl` para gerar segredos (`jq` é opcional).
-- Memória suficiente para navegadores; consulte os [requisitos de instalação](docs/installation.md).
+- Linux com Docker Engine, Docker Compose v2 e `/dev/net/tun`.
+- **Plano pago da Proton VPN** e uma configuração WireGuard gerada. Consulte o [guia Proton VPN](docs/protonvpn.md).
+- `curl` para os testes e `openssl` para gerar senhas fortes.
+- Memória suficiente para o navegador. O consumo ocioso documentado é de aproximadamente 2,5 GB; o uso real varia com a carga.
 
-### Instale e inicie
+### Instalação
 
 ```bash
 git clone https://github.com/beto-zip/web-scraping-firecrawl-vpn.git
 cd web-scraping-firecrawl-vpn
-
 cp .env.example .env
-# Insira a PrivateKey do WireGuard e gere as senhas necessárias:
-# openssl rand -hex 24
-# Nunca versione .env nem o arquivo .conf baixado da Proton.
+
+# Edite o .env: insira a PrivateKey do WireGuard e configure
+# as senhas e a chave da API de controle exigidas.
+# Gere cada segredo separadamente: openssl rand -hex 24
+# NUNCA versione o .env nem o arquivo .conf da Proton.
 
 ./scripts/validate.sh
 docker compose up -d
 docker compose ps
 ```
 
-Mantenha `API_BIND_ADDRESS=127.0.0.1` a menos que você implemente uma camada própria de acesso autenticado: **a API self-hosted não tem autenticação geral habilitada**.
+Mantenha `API_BIND_ADDRESS=127.0.0.1` no `.env`. **A API do Firecrawl não tem autenticação geral habilitada**; não exponha a porta 3002 à internet pública.
 
 ### Faça uma requisição
 
@@ -100,76 +100,74 @@ curl -sS -X POST http://127.0.0.1:3002/v2/scrape \
   -d '{"url":"https://example.com","formats":["markdown"]}'
 ```
 
-Um container confiável conectado à `firecrawl-edge` pode usar `http://gluetun:3002`. Consulte o [exemplo de integração](examples/client/README.md).
+Um aplicativo confiável conectado à `firecrawl-edge` pode usar `http://gluetun:3002`. Veja o [exemplo de cliente](examples/client/README.md).
 
-**Guias completos:** [Instalação](docs/installation.md) · [Chave WireGuard e países](docs/protonvpn.md) · [Solução de problemas](docs/troubleshooting.md). A documentação técnica está em inglês.
+Para detalhes do sistema, variáveis de ambiente, atualizações e remoção, use o [guia completo de instalação](docs/installation.md).
 
-## Limites de segurança
+## Segurança e limitações
 
-A segurança proposta se apoia em **isolamento de rede, não em uma configuração de proxy**:
+A stack está configurada para limitar a saída à internet, mas **não passou por uma auditoria de segurança completa**.
 
-1. **Túnel indisponível → scraping sem saída direta.** O firewall do Gluetun foi configurado para negar o acesso externo fora do túnel.
-2. **Sem rota IPv6 de saída.** As redes Docker usam apenas IPv4; o Gluetun gerencia DNS sobre TLS.
-3. **Destinos privados restritos.** Regras adicionais bloqueiam novas conexões para redes locais, Tailscale/CGNAT e metadados de nuvem, com exceção da sub-rede de backend necessária.
-4. **Serviços sem acesso a sockets raw.** Firecrawl e Playwright descartam as capabilities do Linux.
-5. **Roteamento do host independente.** Alterações de rede ficam no namespace Docker; a **convivência com Tailscale ainda precisa de validação no servidor real** ([#6](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues/6)).
+- **Kill switch:** as regras de firewall foram projetadas para bloquear a saída direta sem VPN; valide esse comportamento no servidor.
+- **DNS e IPv6:** o DNS é gerenciado pelo Gluetun (DNS over TLS); as redes Docker são apenas IPv4.
+- **Destinos privados:** regras adicionais restringem conexões para host/LAN/Tailscale e metadados de nuvem, exceto a sub-rede de backend necessária.
+- **Acesso à API:** containers autorizados na `firecrawl-edge` podem alcançar outras portas do namespace compartilhado. Não conecte containers não confiáveis.
+- **Reinícios:** reconectar o túnel é diferente de reiniciar o container Gluetun. Após reiniciar o Gluetun, execute `docker compose restart api playwright`; caso ele seja *recriado*, use `docker compose up -d`.
+- **Rotação de IP:** a reconexão pode reutilizar o IP de saída e interromper requisições em andamento.
 
-> [!WARNING]
-> **Não** exponha a porta 3002 publicamente nem conecte containers não confiáveis à `firecrawl-edge`. A API não dispõe de autenticação geral e os membros da rede edge podem acessar outras portas do namespace. Isso não substitui uma auditoria de segurança.
-
-### Valide no seu servidor
+### Valide seu ambiente
 
 ```bash
+# Todos os testes, exceto a suíte de recuperação:
 ./scripts/run-tests.sh --skip-recovery
-# Suíte completa (inclui reinicialização de containers):
+
+# Suíte completa (também reinicia containers):
 ./scripts/run-tests.sh
 ```
 
-Os testes cobrem `validate.sh`, scraping, saída VPN, kill switch, rotação e recuperação. **Mesmo com `--skip-recovery`, os testes interrompem temporariamente a rede**; execute em janela de manutenção. Relatórios são gravados em `reports/`, com IPs e segredos mascarados. O CI verifica código/configurações sem credenciais reais da Proton; CI não prova ausência de vazamentos em produção.
+> [!WARNING]
+> **Ambos os comandos podem interromper conexões de scraping**, inclusive com `--skip-recovery`. Execute em uma janela de manutenção. Os relatórios ficam em `reports/`, com segredos/IPs mascarados; revise antes de compartilhar. O CI não substitui testes com VPN real.
 
-Para tentar trocar o IP da VPN sem reiniciar o namespace:
+Consulte: [controles de segurança e riscos residuais](docs/security.md) · [limitações conhecidas](docs/architecture.md#known-limitations) · [solução de problemas](docs/troubleshooting.md).
 
-```bash
-./scripts/rotate-ip.sh
-```
+## Status do projeto
 
-A reconexão pode manter o mesmo IP; requisições em andamento podem falhar. Após um **reinício do container Gluetun** (diferente de reconectar o túnel), use `docker compose restart api playwright`. Veja as [limitações conhecidas](docs/architecture.md#known-limitations).
+| Frente | Situação |
+|:--|:--|
+| Stack Docker, validação de configuração, namespace VPN e scripts de teste | Implementados no repositório; verificação em servidor real pendente |
+| Implantação Linux com Tailscale e OpenClaw | [Issue #6 aberta](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues/6) |
+| Operação simplificada só com Docker | [Planejado #2](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues/2) |
+| Resiliência, tentativas e detecção de bloqueios | [Planejado #3](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues/3) |
+| Fila persistente e retomada de trabalhos | [Planejado #4](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues/4) |
+| Doações voluntárias | [Backlog #10](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues/10); não habilitadas |
 
-## Status do projeto e roadmap
+Acompanhe as [issues do GitHub](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues). Funcionalidades planejadas **ainda não estão presentes** na versão atual.
 
-| Etapa | Escopo | Situação |
-|:--|:--|:--|
-| Base | Stack Docker, namespace VPN, firewall, testes e rotação manual de IP | **Implementada no repositório; validação do deploy pendente** |
-| Validação no servidor | Testes no Linux com Tailscale e cliente OpenClaw | [Issue #6 aberta](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues/6) |
-| Operação simplificada | Executar ferramentas inteiramente via Docker | [Planejado #2](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues/2) |
-| Resiliência | Detecção de bloqueios, políticas de retry e fluxo anti-bloqueio | [Planejado #3](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues/3) |
-| Orquestração | Fila persistente de URLs com retomada | [Planejado #4](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues/4) |
-| Apoio comunitário | Preparar a página de doações no GitHub Pages **sem habilitar pagamentos** antes da validação e versão estável | [Issue futura #10](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues/10) — apenas protótipo |
-
-Acompanhe o trabalho nas [issues do GitHub](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues). Funcionalidades futuras **não** estão disponíveis na stack atual.
-
-## Documentação e contribuições
+## Documentação
 
 | Guia | Conteúdo |
 |:--|:--|
-| [Arquitetura](docs/architecture.md) | Fluxos, namespace, decisões e limitações |
-| [Instalação](docs/installation.md) | Deploy, atualizações e remoção |
-| [Proton VPN](docs/protonvpn.md) | Chave WireGuard, locais de saída e rotação |
+| [Instalação](docs/installation.md) | Setup, atualizações e remoção |
+| [Proton VPN](docs/protonvpn.md) | Chave WireGuard, região de saída e rotação |
+| [Arquitetura](docs/architecture.md) | Isolamento de rede, componentes e ADRs |
 | [Segurança](docs/security.md) | Modelo de ameaças, proteções e riscos residuais |
-| [Solução de problemas](docs/troubleshooting.md) | Recuperação e falhas comuns |
-| [Exemplo de cliente](examples/client/README.md) | Integração de outra aplicação Docker |
+| [Solução de problemas](docs/troubleshooting.md) | Diagnóstico e recuperação |
+| [Exemplo de cliente](examples/client/README.md) | Integração com outros containers Docker |
 
-Relatos de bugs, testes reproduzíveis e pull requests objetivos são bem-vindos. Utilize os [templates de issues](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues/new/choose). Não publique segredos, IPs completos ou logs sensíveis. Respeite os termos da Proton e as regras/robots dos sites acessados. Resolução automática de CAPTCHA **não** está implementada.
+## Como contribuir
 
-## Apoie o projeto
-
-> [!NOTE]
-> **As doações ainda não estão habilitadas.** O [protótipo da página de apoio no GitHub Pages](https://beto-zip.github.io/web-scraping-firecrawl-vpn/donate/) está preparado, mas **ainda não foi publicado nem recebe dinheiro**. O link só funcionará depois da ativação do GitHub Pages. Um endereço público Bitcoin foi preparado no protótipo, mas os pagamentos permanecem desabilitados no modo de prévia. Os endereços de Monero e Ethereum ainda não foram configurados.
-
-Este projeto é gratuito e de código aberto. Futuramente, contribuições voluntárias poderão apoiar infraestrutura, testes reproduzíveis e documentação. Doações nunca serão necessárias para utilizar o código nem darão garantias de suporte, prioridade em funcionalidades ou segurança.
-
-**Pré-requisitos para ativar:** [validação do deploy #6](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues/6) e [planejamento de doações #10](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues/10). As [instruções e cuidados](docs/donate/README.md) detalham a ativação futura.
+Use os [templates de issues](.github/ISSUE_TEMPLATE) para relatar bugs e resultados reproduzíveis. Pull requests objetivos e correções de documentação são bem-vindos. **Nunca publique** `.env`, chaves privadas WireGuard, IPs sem mascaramento ou logs sensíveis. Respeite os termos do provedor de VPN, os termos dos sites e o `robots.txt`. O projeto não implementa resolução automática de CAPTCHA.
 
 ## Licença
 
-Os arquivos próprios deste repositório usam a licença [MIT](LICENSE). A stack executa imagens de terceiros sob suas respectivas licenças (incluindo AGPL-3.0 do Firecrawl), que continuam aplicáveis. Este repositório não redistribui o código-fonte desses projetos.
+Os arquivos próprios deste repositório estão sob a licença [MIT](LICENSE). As imagens de terceiros mantêm suas próprias licenças (incluindo AGPL-3.0 do Firecrawl); a licença MIT deste repositório não substitui essas obrigações.
+
+## Apoie o projeto (planejado)
+
+O projeto é gratuito e de código aberto. Existe um **protótipo de página de doações apenas com criptomoedas** (Bitcoin, Monero e Ethereum), mas **as doações não estão habilitadas**. O endereço público Bitcoin já foi adicionado ao protótipo; Monero e Ethereum continuam sem configuração.
+
+- [Veja o código da página de doações](docs/donate/index.html) e as [instruções/status](docs/donate/README.md).
+- **A publicação no GitHub Pages não foi confirmada.** Por enquanto, não anunciamos um link como página de arrecadação ativa.
+- A arrecadação só será considerada após a [validação do servidor #6](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues/6) e os [requisitos de release e financiamento da issue #10](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues/10).
+
+Qualquer contribuição futura será **voluntária**, sem garantia de suporte, prioridade de funcionalidades, acesso especial ou segurança.
