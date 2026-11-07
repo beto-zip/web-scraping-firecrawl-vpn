@@ -109,7 +109,7 @@
   }
 
   function render() {
-    $(".method").forEach((button) => {
+    $$(".method").forEach((button) => {
       const selected = button.dataset.method === state.method;
       button.classList.toggle("active", selected);
       button.setAttribute("aria-pressed", String(selected));
@@ -135,8 +135,8 @@
       try {
         new window.QRCode(qrNode, {
           text: address,
-          width: 160,
-          height: 160,
+          width: 184,
+          height: 184,
           colorDark: "#172440",
           colorLight: "#ffffff",
           correctLevel: window.QRCode.CorrectLevel.M
@@ -155,7 +155,7 @@
     if (enabled) $("#qrDescription").textContent = dictionary().qrUnavailable;
   }
 
-  $(".method").forEach((button) => button.addEventListener("click", () => {
+  $$(".method").forEach((button) => button.addEventListener("click", () => {
     if (!methods.includes(button.dataset.method)) return;
     state.method = button.dataset.method;
     $("#copyFeedback").textContent = "";
