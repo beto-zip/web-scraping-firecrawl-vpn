@@ -29,7 +29,7 @@ scraping connection leaves through a Proton VPN WireGuard tunnel managed by
 | `playwright` | `network_mode: service:gluetun` | Headless browser, reached at `localhost:3000` |
 | `redis`, `rabbitmq`, `nuq-postgres` | `backend` only | Queues and job storage; no internet access |
 
-Images are pinned by digest in `compose.yaml` (see [spike-notes.md](spike-notes.md) for how they were chosen).
+Images are pinned by digest in `compose.yaml`. Firecrawl publishes per-commit semver tags (for example `2.11.701`); `playwright-service` and `nuq-postgres` only have `sha-*` tags.
 
 ## How fail-closed works
 
@@ -96,7 +96,7 @@ the API to `127.0.0.1` and exposes it to containers only through the `edge` netw
   `api` and `playwright` lose their namespace and have no network (fail-closed). Recover with
   `docker compose restart api playwright`. After Gluetun is **recreated**, use `docker compose up -d`.
   `depends_on.restart: true` was tried and removed: compose restarted the dependents before Gluetun was
-  back, leaving them on a dead namespace (see [spike-notes.md](spike-notes.md)). An optional autoheal
+  back, leaving them on a dead namespace. An optional autoheal
   sidecar is on the roadmap.
 - **No engine selection:** self-hosted Firecrawl picks the playwright engine first; requests cannot
   force the plain fetch engine. All engines share the namespace, so egress guarantees are identical.
