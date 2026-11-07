@@ -7,8 +7,9 @@
 | Scrape traffic leaving with the host IP | `api`/`playwright` share Gluetun's namespace; firewall default `DROP`, only `tun0` + backend allowed | `test-vpn.sh` (`scrape_*_sees_vpn_ip`, `egress_not_host`) |
 | Tunnel down → direct egress | Same firewall; nothing but loopback and backend is reachable | `test-killswitch.sh` (`direct_egress_blocked`, `scrape_fails_when_down`) |
 | DNS leaks | Resolver is Gluetun (`127.0.0.1`), upstream DNS over TLS through the tunnel | `test-vpn.sh` (`dns_via_gluetun`) |
-| IPv6 leaks | No IPv6 in the namespace | `test-vpn.sh` (`ipv6_no_leak`) |
-| SSRF to host, LAN, Tailscale, cloud metadata | `config/gluetun/post-rules.txt` drops new connections to private ranges outside the tunnel | `test-killswitch.sh` (`private_host_gateway_blocked*`, `metadata_blocked`, `tailscale_range_blocked`) |
+| IPv6 leaks | Networks declare `enable_ipv6: false`; no IPv6 address in the namespace | `test-vpn.sh` (`no_ipv6_addresses`, `ipv6_literal_blocked`), `tests/unit/compose.test.sh` |
+| Raw/packet sockets bypassing the firewall | `api` and `playwright` drop all capabilities (no `CAP_NET_RAW`), `no-new-privileges` | `test-killswitch.sh` (`no_net_raw_*`), `tests/unit/compose.test.sh` |
+| SSRF to host, LAN, Tailscale, cloud metadata | `config/gluetun/post-rules.txt` drops new connections to private ranges outside the tunnel | `test-killswitch.sh` (`post_rules_loaded*`, `edge_peer_blocked*` with a positive control, `metadata_blocked`, `tailscale_range_blocked`) |
 | SSRF to the databases | Firecrawl API and playwright-service reject private targets; Redis, RabbitMQ and Postgres require passwords | `test-killswitch.sh` (`api_refuses_private_target`) |
 | Databases reaching the internet | `backend` network is `internal: true` | compose definition |
 | Secrets in logs/reports | Scripts never print secrets; `run-tests.sh` passes output through a redaction filter and masks IPs | manual check in Task 6 of the plan |

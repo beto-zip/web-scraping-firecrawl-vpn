@@ -122,13 +122,13 @@ fi
 # Raw/packet sockets bypass netfilter: scraping containers must not hold CAP_NET_RAW (bit 13).
 for svc in api playwright; do
   capeff="$(dc exec -T "$svc" sh -c "grep CapEff /proc/self/status" 2>/dev/null | awk '{print $2}' | tr -d '\r' || true)"
-  if [[ -z "$capeff" ]]; then
-    fail "no_net_raw_$svc" "could not read capabilities of $svc"
-  elif (( (16#$capeff >> 13) & 1 )); then
-    fail "no_net_raw_$svc" "$svc has CAP_NET_RAW (CapEff=$capeff): raw sockets could bypass the firewall"
-  else
-    pass "no_net_raw_$svc" "CapEff=$capeff"
-  fi
+  cap_rc=0
+  cap_bit_set "$capeff" 13 || cap_rc=$?
+  case "$cap_rc" in
+    0) fail "no_net_raw_$svc" "$svc has CAP_NET_RAW (CapEff=$capeff): raw sockets could bypass the firewall" ;;
+    1) pass "no_net_raw_$svc" "CapEff=$capeff" ;;
+    *) fail "no_net_raw_$svc" "could not read capabilities of $svc" ;;
+  esac
 done
 
 post_rules_loaded post_rules_loaded

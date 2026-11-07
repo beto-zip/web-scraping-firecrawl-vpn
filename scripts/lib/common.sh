@@ -119,3 +119,11 @@ jqr() {
     docker run --rm -i "$JQ_IMAGE" "$@"
   fi
 }
+
+# cap_bit_set <CapEff-hex> <bit>: 0 if set, 1 if clear, 2 if the value is not plain hex.
+# The value comes from inside a container, so it is validated before arithmetic evaluation.
+cap_bit_set() {
+  local hex="${1:-}" bit="$2"
+  [[ "$hex" =~ ^[0-9a-fA-F]{1,16}$ && "$bit" =~ ^[0-9]+$ ]] || return 2
+  (( (16#$hex >> bit) & 1 ))
+}

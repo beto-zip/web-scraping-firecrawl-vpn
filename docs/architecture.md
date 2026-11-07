@@ -41,7 +41,9 @@ Images are pinned by digest in `compose.yaml` (see [spike-notes.md](spike-notes.
    drops **new** connections to private ranges (`10/8`, `172.16/12`, `192.168/16`, `100.64/10`,
    `169.254/16`) outside the tunnel, except the backend subnet. This blocks the host (edge gateway),
    other edge containers, the LAN, Tailscale addresses and cloud metadata.
-4. When the tunnel stops, only loopback and the backend remain reachable: scrapes fail with DNS or
+4. `api` and `playwright` run without Linux capabilities, so they cannot open raw/packet sockets
+   that would skip the firewall. Both networks are IPv4-only (`enable_ipv6: false`).
+5. When the tunnel stops, only loopback and the backend remain reachable: scrapes fail with DNS or
    connection errors. No configuration in Firecrawl is involved, so no HTTP client can bypass it.
 
 All network changes live inside the container namespace: host routes and Tailscale are untouched.

@@ -52,19 +52,24 @@ else
   fail dns_via_gluetun "api resolv.conf nameservers: '${nameservers:-none}' (expected only 127.0.0.1)"
 fi
 
-v6_rc=0
-v6_seen="$(netns_probe -6 -s -m 10 https://api6.ipify.org 2>/dev/null)" || v6_rc=$?
-if [[ "$v6_rc" -eq 125 ]]; then
-  fail ipv6_no_leak "could not probe: gluetun not running"
-elif [[ "$v6_rc" -ne 0 ]]; then
-  pass ipv6_no_leak "no IPv6 egress from netns (curl rc=$v6_rc)"
+# IPv6: the namespace must have no IPv6 address besides loopback, and a literal IPv6
+# destination (no DNS involved) must be unreachable.
+v6_addrs="$(dc exec -T gluetun sh -c "ip -6 -o addr show | awk '\$2 != \"lo\" {print \$2, \$4}'" 2>/dev/null | tr -d '' || true)"
+if ! dc ps --status running -q gluetun | grep -q .; then
+  fail no_ipv6_addresses "could not inspect: gluetun not running"
+elif [[ -z "$v6_addrs" ]]; then
+  pass no_ipv6_addresses
 else
-  host_v6="$(curl -6 -s -m 10 https://api6.ipify.org || true)"
-  if [[ -n "$host_v6" ]] && ips_differ "$host_v6" "$v6_seen"; then
-    pass ipv6_no_leak "IPv6 egress via VPN $(mask_ip "$v6_seen")"
-  else
-    fail ipv6_no_leak "IPv6 egress $(mask_ip "$v6_seen") could not be told apart from host $(mask_ip "$host_v6")"
-  fi
+  fail no_ipv6_addresses "IPv6 addresses present in scraping namespace: $(echo "$v6_addrs" | awk '{print $1}' | tr '
+' ' ')"
 fi
+
+v6_rc=0
+netns_probe -g -s -o /dev/null -m 10 'http://[2606:4700:4700::1111]/' </dev/null 2>/dev/null || v6_rc=$?
+case "$v6_rc" in
+  7|28) pass ipv6_literal_blocked "curl rc=$v6_rc" ;;
+  125) fail ipv6_literal_blocked "could not probe: gluetun not running" ;;
+  *) fail ipv6_literal_blocked "IPv6 destination answered or unexpected error (curl rc=$v6_rc)" ;;
+esac
 
 report_summary

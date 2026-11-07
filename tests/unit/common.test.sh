@@ -48,3 +48,14 @@ test_summary_passes_without_fail() {
 }
 
 test_jqr_extracts_field() { assert_eq "1" "$(echo '{"a":1}' | jqr -r .a)" jqr; }
+
+# CapEff comes from inside a container: never evaluate it unless it is plain hex.
+test_cap_bit_set_reads_hex() {
+  assert_rc 0 cap_bit_set 00000000a80425fb 13
+  assert_rc 1 cap_bit_set 0000000000000000 13
+}
+test_cap_bit_set_rejects_non_hex() {
+  assert_rc 2 cap_bit_set 'a[$(touch $TMP/pwned)]' 13
+  [[ ! -e "$TMP/pwned" ]] || fail_test "input was evaluated"
+  assert_rc 2 cap_bit_set '' 13
+}

@@ -188,12 +188,15 @@ networks:
   backend:
     # No gateway to the internet: databases cannot egress at all.
     internal: true
+    # IPv4 only: the private-range DROP rules (post-rules.txt) are IPv4.
+    enable_ipv6: false
     ipam:
       config:
         - subnet: 172.30.0.0/24
   edge:
     # Shared with API consumers (OpenClaw, examples/client): they call http://gluetun:3002
     name: ${EDGE_NETWORK_NAME:-firecrawl-edge}
+    enable_ipv6: false
 
 volumes:
   gluetun-data:
