@@ -6,9 +6,7 @@
  * To activate later, set stage: "live" AND configure real receiving accounts.
  * NEVER add private wallet keys, seed phrases, API tokens or passwords here.
  *
- * Each PayPal URL must be a real payment link that matches its displayed USD
- * amount and frequency. "Monthly" / "Yearly" require genuine subscription
- * links, not a generic PayPal.Me link.
+ * The page accepts only direct cryptocurrency donations (BTC, XMR, ETH).
  */
 window.DONATION_CONFIG = Object.freeze({
   stage: "preview", // "preview" | "live"
@@ -16,10 +14,5 @@ window.DONATION_CONFIG = Object.freeze({
     btc: { address: "", network: "Bitcoin (BTC)" },
     xmr: { address: "", network: "Monero (XMR)" },
     eth: { address: "", network: "Ethereum Mainnet (ETH)" }
-  },
-  paypal: {
-    once: { "5": "", "10": "", "25": "", "50": "" },
-    monthly: { "5": "", "10": "", "25": "", "50": "" },
-    yearly: { "5": "", "10": "", "25": "", "50": "" }
   }
 });
