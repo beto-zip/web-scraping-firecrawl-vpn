@@ -1,19 +1,19 @@
 # Donation page prototype / Protótipo da página de apoio
 
-This folder contains a **static** GitHub Pages donation interface, inspired by the layout of a typical multi-method donation selector. It is independent of the Docker/VPN runtime. All payment destinations are intentionally blank and the page is locked in preview mode.
+This folder contains a **cryptocurrency-only** static GitHub Pages donation interface for **Bitcoin (BTC), Monero (XMR), and Ethereum (ETH)**. It is independent of the Docker/VPN runtime. **No receiving wallet is configured** and the interface is locked in preview mode.
 
-> **Do not switch it on yet.** [Issue #10](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues/10) requires real deployment validation ([#6](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues/6)), resolution of material security/maintenance gaps, and a stable public release before publishing a donation call to action.
+> **Do not activate donations yet.** [Issue #10](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues/10) requires real deployment validation ([#6](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues/6)), resolution of material security/maintenance gaps, and a stable public release before publishing a donation call to action.
 
 ## Files
 
-- `index.html`: accessible page structure, Portuguese/English labels.
-- `styles.css`: original responsive design, no CSS framework.
-- `app.js`: browser-only method selector, copy button, QR rendering and PayPal links.
-- `config.js`: **public** placeholders and a separate `stage` activation flag.
+- `index.html`: accessible cryptocurrency selector with PT-BR/EN labels.
+- `styles.css`: responsive layout with no CSS framework.
+- `app.js`: browser-only wallet selection, QR rendering and address copy.
+- `config.js`: **public** empty receiving addresses and an explicit `stage` flag.
 
-The page has **no payment backend**. Crypto receiving addresses are presented locally in the browser, and users follow official external PayPal links for payment. No private keys or credentials are needed or permitted in the repository.
+There is **no backend and no custody of funds**. Users send funds directly to a public wallet address with their own wallet app. Private keys and seed phrases are never required on this site.
 
-## Test the prototype locally
+## Preview locally
 
 From the repository root:
 
@@ -21,28 +21,26 @@ From the repository root:
 python3 -m http.server 8000 --directory docs
 ```
 
-Open `http://localhost:8000/donate/`. By design: no real payment button, receiving wallet or QR code is enabled while `stage: "preview"`, even if a payment destination is filled in. The page shows a clear preview notice.
+Open `http://localhost:8000/donate/`. By design, wallet addresses, QR codes and the copy button remain disabled while `stage: "preview"`, even if receiving addresses are filled. The preview notice stays visible.
 
-QR creation uses **QRCode.js 1.0.0** (MIT license) delivered through a version-pinned Cloudflare CDN script with SRI integrity. Wallet addresses are encoded into QR codes **inside the browser**, not sent to a third-party QR generation service. If the CDN is unreachable, users can still copy a configured wallet address in live mode.
+QRCode.js 1.0.0 (MIT) is loaded using a version-pinned Cloudflare CDN script with SRI. QR codes are generated **in the visitor's browser**, not by calling a third-party QR code generation service. With the QR dependency unavailable, copying the configured public address will still work in live mode.
 
-## Publish on GitHub Pages (only after #10 prerequisites)
+## Future activation (only after issue #10 prerequisites)
 
-1. Complete and document the prerequisites in issue #10. Decide who owns payment accounts, tax/accounting implications, public contact, provider fees and how funds will be reported.
-2. Verify the addresses and external links against the actual recipient account (and against the exact network). Have another maintainer independently verify the displayed destinations. Do not trust a screenshot for copying wallet addresses.
-3. Set the public addresses in `config.js`. Set each PayPal URL for the **exact USD amount and frequency** shown. The monthly and yearly columns require genuine subscription links; a normal one-off PayPal.Me link does not create recurring billing.
-4. Test each enabled method end to end **with an authorized low-value test transaction** and check the receiving destination. Leave unconfigured methods disabled.
-5. Only then change `stage: "preview"` to `stage: "live"`, update the README links, and enable Pages in **Settings → Pages → Build and deployment → Deploy from a branch → main → /docs → Save**.
-6. Check the published site at `https://beto-zip.github.io/web-scraping-firecrawl-vpn/donate/` and confirm that README links work. The URL will not be live until Pages is configured and deployed.
+1. Complete the deployment validation and stable-release prerequisites. Decide how funds will be reported and who controls the receiving accounts.
+2. Create **dedicated receiving addresses** for BTC, XMR and ETH as needed. Do not use a single wallet address across incompatible blockchains.
+3. Set **only public receiving addresses** in `config.js`; never commit seed phrases, private keys, API tokens, or credentials.
+4. Independently verify the displayed address and associated network for every enabled coin. Check address validity and recipient control. Perform authorized low-value test payments before release.
+5. Change `stage: "preview"` to `stage: "live"` only after review and the issue #10 release gate.
+6. Enable GitHub Pages in **Settings → Pages → Build and deployment → Deploy from a branch → main → /docs → Save**, and confirm the published site at `https://beto-zip.github.io/web-scraping-firecrawl-vpn/donate/`. The URL is not active until Pages is configured and deployed.
 
-GitHub Pages needs an entry point at the root of the selected source folder, which is why `docs/index.html` is also included. Pages uses `/docs` for publishing, but regular repository documentation remains at `docs/*.md`.
+## Security / scope
 
-## Safety and disclosure checklist
+- Supported coins: Bitcoin **mainnet**, Monero **mainnet** and Ethereum **mainnet**. Do not use mismatched networks or token-specific contracts.
+- The QR encodes the **public address** only, without requesting permissions or funds.
+- Copying an address requires a secure context; GitHub Pages provides HTTPS.
+- Contributions are entirely voluntary and confer no service SLA, priority, guaranteed access or security warranty.
+- Not a payment processor or checkout service; **no fiat payments, PayPal, credit cards or subscriptions** are offered.
+- Keep both README languages aligned.
 
-- Never add wallet **private** keys, mnemonics, OAuth tokens or API secrets in client-side files.
-- Disable any unavailable method rather than providing fake addresses.
-- Avoid copying the branding or payment details of the reference website.
-- Explain that voluntary contributions confer **no support SLA, priority, access or security guarantee**.
-- Do not describe PayPal links as monthly/yearly recurring plans without configuring actual recurring plans in PayPal.
-- Keep English and Portuguese README disclosures in sync.
-
-**Status:** prototype only. No contributions are requested or accepted through this interface.
+**Status: prototype only. No donations are requested or accepted through this interface.**
