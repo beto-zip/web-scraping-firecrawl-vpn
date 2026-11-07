@@ -11,7 +11,7 @@
 
 **English** · [Português (Brasil)](README.pt-BR.md)
 
-[Overview](#overview) · [Architecture](#architecture) · [Quick start](#quick-start) · [Security](#security-and-limitations) · [Status](#project-status) · [Documentation](#documentation) · [Support](#support-the-project)
+[Overview](#overview) · [Architecture](#architecture) · [Quick start](#quick-start) · [Security](#security-and-limitations) · [Status](#project-status) · [Documentation](#documentation) · [Support](#support-the-project-planned)
 
 </div>
 
