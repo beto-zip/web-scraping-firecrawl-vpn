@@ -41,16 +41,15 @@
           <div class="card-top">
             <div>
               <p class="section-kicker" data-i18n="supportOptions">FORMAS DE APOIO</p>
-              <h2 data-i18n="selectMethod">Escolha como contribuir</h2>
+              <h2 data-i18n="selectMethod">Selecione uma criptomoeda</h2>
             </div>
             <span class="heart-icon" aria-hidden="true">♥</span>
           </div>
 
-          <div class="methods" role="group" aria-label="Método de pagamento">
+          <div class="methods" role="group" aria-label="Criptomoeda">
             <button type="button" class="method active" data-method="btc" aria-pressed="true"><span class="coin coin-btc">₿</span><span>Bitcoin</span></button>
             <button type="button" class="method" data-method="xmr" aria-pressed="false"><span class="coin coin-xmr">ɱ</span><span>Monero</span></button>
             <button type="button" class="method" data-method="eth" aria-pressed="false"><span class="coin coin-eth">Ξ</span><span>Ethereum</span></button>
-            <button type="button" class="method" data-method="paypal" aria-pressed="false"><span class="coin coin-paypal">P</span><span>PayPal</span></button>
           </div>
 
           <section id="cryptoPanel" class="payment-content" aria-label="Contribuição por criptomoeda">
@@ -78,30 +77,6 @@
               </div>
             </div>
             <p class="network-warning" data-i18n="networkWarning">Confira a rede e o endereço antes de enviar. Transações em blockchain podem ser irreversíveis.</p>
-          </section>
-
-          <section id="paypalPanel" class="payment-content" aria-label="Contribuição por PayPal" hidden>
-            <div class="payment-heading">
-              <div>
-                <p class="mini-label" data-i18n="paypalDonation">DOAÇÃO VIA PAYPAL</p>
-                <h3 data-i18n="chooseFrequency">Escolha a frequência</h3>
-              </div>
-              <span class="small-tag">PayPal</span>
-            </div>
-            <div class="frequency-picker" role="group" aria-label="Frequência">
-              <button type="button" data-frequency="once" class="active" aria-pressed="true" data-i18n="once">Uma vez</button>
-              <button type="button" data-frequency="monthly" aria-pressed="false" data-i18n="monthly">Mensal</button>
-              <button type="button" data-frequency="yearly" aria-pressed="false" data-i18n="yearly">Anual</button>
-            </div>
-            <p id="frequencyHint" class="frequency-hint" data-i18n="paypalFrequencyHint">Valores ilustrativos. O pagamento só ficará disponível após configurar o link oficial.</p>
-            <div id="amountOptions" class="amount-options" role="group" aria-label="Valor em USD">
-              <button type="button" data-amount="5" aria-pressed="false">$5</button>
-              <button type="button" data-amount="10" aria-pressed="false">$10</button>
-              <button type="button" data-amount="25" class="active" aria-pressed="true">$25</button>
-              <button type="button" data-amount="50" aria-pressed="false">$50</button>
-            </div>
-            <button id="paypalAction" class="primary-button" type="button" disabled><span data-i18n="paypalUnavailable">PayPal indisponível</span><span aria-hidden="true">↗</span></button>
-            <p class="payment-disclaimer" data-i18n="externalPaypal">Ao habilitar, o pagamento ocorrerá no site oficial do PayPal, não nesta página.</p>
           </section>
 
           <div id="copyFeedback" class="feedback" role="status" aria-live="polite"></div>
