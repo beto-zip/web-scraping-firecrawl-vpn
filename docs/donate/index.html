@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Conheça as formas de apoiar o projeto comunitário Firecrawl over Proton VPN. Doações ainda não habilitadas.">
+  <meta name="theme-color" content="#f6f8fc">
+  <title>Apoie o projeto · Firecrawl over Proton VPN</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script defer src="./config.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSQX0FslNhTDadL4O5SAGapGt4FodqL8My0mA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script defer src="./app.js"></script>
+</head>
+<body>
+  <div class="site-shell">
+    <header class="topbar">
+      <a class="brand" href="https://github.com/beto-zip/web-scraping-firecrawl-vpn" aria-label="Firecrawl over Proton VPN no GitHub">
+        <span class="brand-mark" aria-hidden="true">F<span class="slash">/</span>V</span>
+        <span class="brand-title">Firecrawl <span>over Proton VPN</span></span>
+      </a>
+      <div class="header-actions">
+        <span id="stageBadge" class="stage-badge">Preview</span>
+        <button id="languageButton" class="language-button" type="button" aria-label="Switch language">EN</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="intro" aria-labelledby="pageTitle">
+        <span class="eyebrow"><span class="eyebrow-dot"></span><span data-i18n="eyebrow">COMUNIDADE OPEN SOURCE</span></span>
+        <h1 id="pageTitle" data-i18n="title">Ajude a manter o projeto em movimento<span class="period">.</span></h1>
+        <p class="lead" data-i18n="lead">Este software é gratuito. O apoio da comunidade poderá ajudar com infraestrutura, testes e documentação, sem mudar o acesso livre ao código.</p>
+      </section>
+
+      <div id="previewNotice" class="notice" role="status">
+        <span class="notice-symbol" aria-hidden="true">i</span>
+        <span data-i18n="previewNotice"><strong>Prévia de interface.</strong> As doações não estão habilitadas. Esta página não solicita nem recebe pagamentos.</span>
+      </div>
+
+      <div class="layout">
+        <section class="donation-card" aria-label="Formas de apoio">
+          <div class="card-top">
+            <div>
+              <p class="section-kicker" data-i18n="supportOptions">FORMAS DE APOIO</p>
+              <h2 data-i18n="selectMethod">Escolha como contribuir</h2>
+            </div>
+            <span class="heart-icon" aria-hidden="true">♥</span>
+          </div>
+
+          <div class="methods" role="group" aria-label="Método de pagamento">
+            <button type="button" class="method active" data-method="btc" aria-pressed="true"><span class="coin coin-btc">₿</span><span>Bitcoin</span></button>
+            <button type="button" class="method" data-method="xmr" aria-pressed="false"><span class="coin coin-xmr">ɱ</span><span>Monero</span></button>
+            <button type="button" class="method" data-method="eth" aria-pressed="false"><span class="coin coin-eth">Ξ</span><span>Ethereum</span></button>
+            <button type="button" class="method" data-method="paypal" aria-pressed="false"><span class="coin coin-paypal">P</span><span>PayPal</span></button>
+          </div>
+
+          <section id="cryptoPanel" class="payment-content" aria-label="Contribuição por criptomoeda">
+            <div class="payment-heading">
+              <div>
+                <p class="mini-label" data-i18n="selectedNetwork">REDE SELECIONADA</p>
+                <h3 id="networkName">Bitcoin (BTC)</h3>
+              </div>
+              <span class="small-tag" data-i18n="onchain">On-chain</span>
+            </div>
+            <div class="wallet-box">
+              <label for="walletAddress" data-i18n="publicAddress">Endereço público para recebimento</label>
+              <div class="address-row">
+                <input id="walletAddress" readonly value="" placeholder="Ainda não configurado" aria-label="Endereço público da carteira">
+                <button id="copyAddress" class="icon-button" type="button" disabled aria-label="Copiar endereço" title="Copiar endereço">
+                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>
+                </button>
+              </div>
+              <div class="qr-area">
+                <div id="qrCode" class="qr-code" aria-label="QR Code de pagamento"><span class="qr-placeholder" aria-hidden="true">▦</span></div>
+                <div class="qr-explainer">
+                  <strong data-i18n="qrTitle">QR Code</strong>
+                  <p id="qrDescription" data-i18n="qrPending">Disponível quando a carteira oficial for configurada.</p>
+                </div>
+              </div>
+            </div>
+            <p class="network-warning" data-i18n="networkWarning">Confira a rede e o endereço antes de enviar. Transações em blockchain podem ser irreversíveis.</p>
+          </section>
+
+          <section id="paypalPanel" class="payment-content" aria-label="Contribuição por PayPal" hidden>
+            <div class="payment-heading">
+              <div>
+                <p class="mini-label" data-i18n="paypalDonation">DOAÇÃO VIA PAYPAL</p>
+                <h3 data-i18n="chooseFrequency">Escolha a frequência</h3>
+              </div>
+              <span class="small-tag">PayPal</span>
+            </div>
+            <div class="frequency-picker" role="group" aria-label="Frequência">
+              <button type="button" data-frequency="once" class="active" aria-pressed="true" data-i18n="once">Uma vez</button>
+              <button type="button" data-frequency="monthly" aria-pressed="false" data-i18n="monthly">Mensal</button>
+              <button type="button" data-frequency="yearly" aria-pressed="false" data-i18n="yearly">Anual</button>
+            </div>
+            <p id="frequencyHint" class="frequency-hint" data-i18n="paypalFrequencyHint">Valores ilustrativos. O pagamento só ficará disponível após configurar o link oficial.</p>
+            <div id="amountOptions" class="amount-options" role="group" aria-label="Valor em USD">
+              <button type="button" data-amount="5" aria-pressed="false">$5</button>
+              <button type="button" data-amount="10" aria-pressed="false">$10</button>
+              <button type="button" data-amount="25" class="active" aria-pressed="true">$25</button>
+              <button type="button" data-amount="50" aria-pressed="false">$50</button>
+            </div>
+            <button id="paypalAction" class="primary-button" type="button" disabled><span data-i18n="paypalUnavailable">PayPal indisponível</span><span aria-hidden="true">↗</span></button>
+            <p class="payment-disclaimer" data-i18n="externalPaypal">Ao habilitar, o pagamento ocorrerá no site oficial do PayPal, não nesta página.</p>
+          </section>
+
+          <div id="copyFeedback" class="feedback" role="status" aria-live="polite"></div>
+        </section>
+
+        <aside class="sidebar">
+          <div class="info-card">
+            <span class="info-icon" aria-hidden="true">⌁</span>
+            <h2 data-i18n="whySupport">Por que apoiar?</h2>
+            <p data-i18n="whyBody">Este projeto é mantido de forma independente. Eventuais contribuições voluntárias serão destinadas a custos de manutenção, documentação e testes.</p>
+            <div class="info-divider"></div>
+            <div class="benefit"><span aria-hidden="true">✓</span><span data-i18n="benefitOne">Código aberto e gratuito</span></div>
+            <div class="benefit"><span aria-hidden="true">✓</span><span data-i18n="benefitTwo">Sem obrigação de contribuir</span></div>
+            <div class="benefit"><span aria-hidden="true">✓</span><span data-i18n="benefitThree">Sem privilégios ou suporte garantido</span></div>
+          </div>
+          <a class="github-card" href="https://github.com/beto-zip/web-scraping-firecrawl-vpn" target="_blank" rel="noopener noreferrer">
+            <span class="github-symbol" aria-hidden="true">⌘</span>
+            <span><strong data-i18n="otherSupport">Outras formas de apoiar</strong><small data-i18n="starsIssues">Stars, issues e contribuições no GitHub</small></span>
+            <span aria-hidden="true">↗</span>
+          </a>
+        </aside>
+      </div>
+
+      <div class="footer-note">
+        <p data-i18n="statusExplanation">As doações permanecem em planejamento até a validação da implantação e uma versão estável.</p>
+        <a href="https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues/10" target="_blank" rel="noopener noreferrer" data-i18n="viewRoadmap">Ver planejamento →</a>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <span>© <span id="currentYear">2026</span> Firecrawl over Proton VPN · Open source</span>
+      <span data-i18n="notAffiliated">Projeto independente. Não afiliado à Firecrawl ou Proton VPN.</span>
+    </footer>
+  </div>
+</body>
+</html>
