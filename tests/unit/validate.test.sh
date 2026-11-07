@@ -41,3 +41,8 @@ test_url_unsafe_password_rejected() {
   sed 's|^REDIS_PASSWORD=.*|REDIS_PASSWORD=pa@ss/word|' "$F/valid.env" > "$TMP/unsafe.env"
   assert_rc 1 "$V" --env "$TMP/unsafe.env" --skip-compose
 }
+
+test_missing_bull_auth_key_rejected() {
+  grep -v '^BULL_AUTH_KEY=' "$F/valid.env" > "$TMP/nobull.env"
+  assert_rc 1 "$V" --env "$TMP/nobull.env" --skip-compose
+}
