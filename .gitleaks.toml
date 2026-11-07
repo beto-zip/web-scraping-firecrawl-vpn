@@ -1,0 +1,14 @@
+# Default gitleaks rules plus WireGuard private keys (not covered by default rules).
+[extend]
+useDefault = true
+
+[[rules]]
+id = "wireguard-private-key"
+description = "WireGuard private key (Proton .conf PrivateKey or WIREGUARD_PRIVATE_KEY)"
+regex = '''(?i)(?:PrivateKey|WIREGUARD_PRIVATE_KEY)\s*[=:]\s*["']?([A-Za-z0-9+/]{42}[AEIMQUYcgkosw048]=)'''
+secretGroup = 1
+keywords = ["privatekey", "wireguard_private_key"]
+
+[allowlist]
+description = "Test fixture key (32 zero bytes) used by unit tests"
+regexes = ['''AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=''']

@@ -1,0 +1,47 @@
+name: validate
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  shell:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: shellcheck
+        run: shellcheck scripts/*.sh scripts/lib/*.sh tests/unit/*.sh
+      - name: unit tests
+        run: bash tests/unit/run.sh
+
+  compose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: .env from test fixture (fake values)
+        run: cp tests/fixtures/valid.env .env
+      - name: docker compose config
+        run: docker compose config -q
+      - name: validate.sh
+        run: bash scripts/validate.sh --env .env
+
+  yaml:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: yamllint
+        run: yamllint --strict .
+
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: gitleaks (default rules + WireGuard keys)
+        run: |
+          docker run --rm -v "$PWD:/repo" -w /repo zricethezav/gitleaks:v8.21.2 \
+            git /repo --config /repo/.gitleaks.toml --no-banner -v
