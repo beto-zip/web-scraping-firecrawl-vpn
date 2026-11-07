@@ -1,0 +1,20 @@
+# Simulated API consumer (stands in for OpenClaw or any app).
+# Joins the stack's edge network and calls http://gluetun:3002.
+# Usage: docker compose -f examples/client/compose.yaml run --rm client <url>
+name: fvpn-example-client
+
+services:
+  client:
+    image: node:22.11.0-alpine3.20
+    working_dir: /app
+    volumes:
+      - ./scrape.mjs:/app/scrape.mjs:ro
+    environment:
+      FIRECRAWL_API_URL: ${FIRECRAWL_API_URL:-http://gluetun:3002}
+    entrypoint: ["node", "/app/scrape.mjs"]
+    networks: [edge]
+
+networks:
+  edge:
+    external: true
+    name: ${EDGE_NETWORK_NAME:-firecrawl-edge}
