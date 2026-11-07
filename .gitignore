@@ -20,3 +20,5 @@ reports/
 
 # Superpowers execution workspace
 .superpowers/
+
+.rotate.lock/

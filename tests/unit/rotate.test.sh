@@ -49,3 +49,19 @@ test_rotate_flag_set_when_tunnel_not_back() {
   rotate_ip 3 >/dev/null 2>&1
   assert_eq 1 "$ROTATE_VPN_STOPPED" "flag left for caller's restore"
 }
+
+# ---------- scripts/rotate-ip.sh CLI (no docker reached: fails before load_env) ----------
+R="$ROOT/scripts/rotate-ip.sh"
+test_rotate_cli_help()          { assert_rc 0 "$R" --help; }
+test_rotate_cli_bad_flag()      { assert_rc 64 "$R" --bogus; }
+test_rotate_cli_attempts_zero() { assert_rc 64 "$R" --max-attempts 0; }
+test_rotate_cli_attempts_big()  { assert_rc 64 "$R" --max-attempts 11; }
+test_rotate_cli_attempts_text() { assert_rc 64 "$R" --max-attempts x; }
+test_rotate_cli_attempts_none() { assert_rc 64 "$R" --max-attempts; }
+
+test_rotate_cli_busy() {
+  mkdir "$TMP/lock"
+  export FVPN_LOCK_DIR="$TMP/lock"   # test runs in a subshell: export does not leak
+  assert_rc 3 "$R"
+  [[ -d "$TMP/lock" ]] || fail_test "removed someone else's lock"
+}
