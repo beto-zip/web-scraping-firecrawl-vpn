@@ -164,7 +164,7 @@ Relatos de bugs, testes reproduzíveis e pull requests objetivos são bem-vindos
 ## Apoie o projeto
 
 > [!NOTE]
-> **As doações ainda não estão habilitadas.** O [protótipo da página de apoio no GitHub Pages](https://beto-zip.github.io/web-scraping-firecrawl-vpn/donate/) está preparado, mas **ainda não foi publicado nem recebe dinheiro**. O link só funcionará depois da ativação do GitHub Pages. Nenhuma carteira ou link de pagamento do PayPal foi configurado.
+> **As doações ainda não estão habilitadas.** O [protótipo da página de apoio no GitHub Pages](https://beto-zip.github.io/web-scraping-firecrawl-vpn/donate/) está preparado, mas **ainda não foi publicado nem recebe dinheiro**. O link só funcionará depois da ativação do GitHub Pages. Nenhum endereço público de recebimento foi configurado. A prévia contempla somente Bitcoin, Monero e Ethereum.
 
 Este projeto é gratuito e de código aberto. Futuramente, contribuições voluntárias poderão apoiar infraestrutura, testes reproduzíveis e documentação. Doações nunca serão necessárias para utilizar o código nem darão garantias de suporte, prioridade em funcionalidades ou segurança.
 
