@@ -30,7 +30,8 @@ services:
       SERVER_COUNTRIES: ${SERVER_COUNTRIES:-Netherlands}
       SERVER_CITIES: ${SERVER_CITIES:-}
       # Only the internal backend subnet is reachable outside the tunnel.
-      FIREWALL_OUTBOUND_SUBNETS: ${BACKEND_SUBNET:-172.30.0.0/24}
+      # Keep in sync with networks.backend and config/gluetun/post-rules.txt.
+      FIREWALL_OUTBOUND_SUBNETS: 172.30.0.0/24
       DNS_UPSTREAM_RESOLVER_TYPE: dot
       HTTPPROXY: "off"
       SHADOWSOCKS: "off"
@@ -41,6 +42,9 @@ services:
       - "${API_BIND_ADDRESS:-127.0.0.1}:${FIRECRAWL_PORT:-3002}:3002"
     volumes:
       - gluetun-data:/gluetun
+      # Blocks NEW connections to private ranges (host, edge peers, LAN, Tailscale,
+      # metadata) except the backend subnet. Gluetun otherwise allows its local subnets.
+      - ./config/gluetun/post-rules.txt:/iptables/post-rules.txt:ro
     networks:
       - backend
       - edge
@@ -181,7 +185,7 @@ networks:
     internal: true
     ipam:
       config:
-        - subnet: ${BACKEND_SUBNET:-172.30.0.0/24}
+        - subnet: 172.30.0.0/24
   edge:
     # Shared with API consumers (OpenClaw, examples/client): they call http://gluetun:3002
     name: ${EDGE_NETWORK_NAME:-firecrawl-edge}

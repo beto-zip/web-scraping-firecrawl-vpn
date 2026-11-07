@@ -1,0 +1,6 @@
+iptables -I OUTPUT 1 ! -o tun0 -m conntrack --ctstate NEW -d 169.254.0.0/16 -j DROP
+iptables -I OUTPUT 1 ! -o tun0 -m conntrack --ctstate NEW -d 100.64.0.0/10 -j DROP
+iptables -I OUTPUT 1 ! -o tun0 -m conntrack --ctstate NEW -d 192.168.0.0/16 -j DROP
+iptables -I OUTPUT 1 ! -o tun0 -m conntrack --ctstate NEW -d 172.16.0.0/12 -j DROP
+iptables -I OUTPUT 1 ! -o tun0 -m conntrack --ctstate NEW -d 10.0.0.0/8 -j DROP
+iptables -I OUTPUT 1 -d 172.30.0.0/24 -j ACCEPT
