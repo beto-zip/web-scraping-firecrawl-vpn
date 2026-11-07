@@ -144,7 +144,7 @@ Rotation may reconnect to the same exit IP; in-flight requests can fail while th
 | Simplified operations | Run tooling entirely through Docker | [Planned #2](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues/2) |
 | Resilience | Block detection, retry policies, anti-blocking workflow | [Planned #3](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues/3) |
 | Job orchestration | Persistent URL queue and resume support | [Planned #4](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues/4) |
-| Community support | Evaluate voluntary donations/sponsorship **after** validation and a stable public release | **Later — no payment links yet** |
+| Community support | Evaluate voluntary donations/sponsorship **after** validation and a stable public release | [Future issue #10](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues/10) — no payment links yet |
 
 Open work and progress: [GitHub issues](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues). Future features are **not** included in the current stack.
 
