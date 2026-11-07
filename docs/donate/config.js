@@ -1,6 +1,6 @@
 /*
  * PUBLIC website configuration (not a secret store).
- * All fields below are intentionally empty.
+ * Only a public Bitcoin receiving address has been supplied. Other networks remain empty.
  *
  * Keep stage: "preview" until issue #10 release prerequisites are met.
  * To activate later, set stage: "live" AND configure real receiving accounts.
@@ -11,7 +11,7 @@
 window.DONATION_CONFIG = Object.freeze({
   stage: "preview", // "preview" | "live"
   wallets: {
-    btc: { address: "", network: "Bitcoin (BTC)" },
+    btc: { address: "bc1qnsv4070t2vxrxvlzfmdm82r8l7g8cyk2hzhztc", network: "Bitcoin (BTC)", message: "git" },
     xmr: { address: "", network: "Monero (XMR)" },
     eth: { address: "", network: "Ethereum Mainnet (ETH)" }
   }
