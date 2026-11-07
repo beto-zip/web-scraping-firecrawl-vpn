@@ -9,26 +9,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/lib/common.sh"
 load_env "$FVPN_ROOT/.env"
 
 API="$(api_url)"
-CONTROL="http://127.0.0.1:8000"
 report_init killswitch
-
-vpn_set() {
-  netns_probe -s -m 15 -X PUT -H "X-API-Key: ${GLUETUN_CONTROL_API_KEY}" -H 'Content-Type: application/json' \
-    -d "{\"status\":\"$1\"}" "$CONTROL/v1/vpn/status" </dev/null >/dev/null 2>&1
-}
-
-# Waits until the tunnel is up again and gluetun reports a public IP (max 180s).
-vpn_wait_up() {
-  local waited=0 ip
-  while (( waited < 180 )); do
-    ip="$(netns_probe -s -m 5 -H "X-API-Key: ${GLUETUN_CONTROL_API_KEY}" "$CONTROL/v1/publicip/ip" </dev/null 2>/dev/null \
-      | jqr -r '.public_ip // empty' 2>/dev/null || true)"
-    [[ -n "$ip" ]] && wait_healthy gluetun 60 && return 0
-    sleep 5
-    waited=$((waited + 5))
-  done
-  return 1
-}
 
 VPN_STOPPED=0
 # Output may go to a pipe that is already gone (Ctrl-C killed `tee`): never let a failed
@@ -36,8 +17,8 @@ VPN_STOPPED=0
 restore_vpn() {
   if [[ "$VPN_STOPPED" -eq 1 ]]; then
     echo "-- restoring VPN" 2>/dev/null || true
-    vpn_set running || true
-    vpn_wait_up || { echo "WARN  VPN did not come back; run: docker compose restart gluetun" >&2; } 2>/dev/null || true
+    vpn_set_status running || true
+    vpn_wait_up 180 || { echo "WARN  VPN did not come back; run: docker compose restart gluetun" >&2; } 2>/dev/null || true
     VPN_STOPPED=0
   fi
 }
@@ -45,9 +26,9 @@ restore_vpn() {
 trap '' PIPE
 trap 'restore_vpn; cleanup_listener' EXIT
 # On interruption (Ctrl-C, kill, SSH disconnect): restore the tunnel, then stop.
-trap 'restore_vpn; exit 130' INT
-trap 'restore_vpn; exit 143' TERM
-trap 'restore_vpn; exit 129' HUP
+trap 'restore_vpn; reraise INT' INT
+trap 'restore_vpn; reraise TERM' TERM
+trap 'restore_vpn; reraise HUP' HUP
 
 # PASS when the probe could run and the destination was NOT reachable.
 # Firewall DROP shows as timeout (28) or no DNS (6). Connection refused (7) or any
@@ -158,7 +139,7 @@ fi
 # Mark before the request: if interrupted mid-request the tunnel may already be stopped.
 # Restoring an already running tunnel is harmless.
 VPN_STOPPED=1
-if vpn_set stopped; then
+if vpn_set_status stopped; then
   sleep 3
   pass vpn_stopped
   expect_blocked direct_egress_blocked -m 10 https://1.1.1.1/

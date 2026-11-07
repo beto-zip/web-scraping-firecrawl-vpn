@@ -7,25 +7,12 @@ set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/lib/common.sh"
 load_env "$FVPN_ROOT/.env"
 
-API="$(api_url)"
 report_init vpn
 
-# Public IP as seen by gluetun (control server, inside the netns).
-gluetun_public_ip() {
-  netns_probe -s -m 10 -H "X-API-Key: ${GLUETUN_CONTROL_API_KEY}" http://127.0.0.1:8000/v1/publicip/ip 2>/dev/null \
-    | jqr -r '.public_ip // empty' 2>/dev/null || true
-}
-
-# IP that a scraped target sees: Firecrawl scrapes api.ipify.org and returns the page body.
-scraped_ip() {
-  curl -s -m 120 -X POST "$API/v2/scrape" -H 'Content-Type: application/json' -d "$1" 2>/dev/null \
-    | jqr -r 'if .success == true then (.data.markdown // "" | gsub("\\s"; "")) else empty end' 2>/dev/null || true
-}
-
-host_ip="$(curl -s -m 10 https://api.ipify.org || true)"
+host_ip="$(host_public_ip)"
 if [[ -n "$host_ip" ]]; then pass host_ip_known "$(mask_ip "$host_ip")"; else fail host_ip_known "could not get host public IP"; fi
 
-vpn_ip="$(gluetun_public_ip)"
+vpn_ip="$(vpn_public_ip)"
 if [[ -n "$vpn_ip" ]]; then pass gluetun_ip_known "$(mask_ip "$vpn_ip")"; else fail gluetun_ip_known "control server gave no public IP (stack up? GLUETUN_CONTROL_API_KEY?)"; fi
 
 if ips_differ "$host_ip" "$vpn_ip"; then
@@ -37,7 +24,7 @@ fi
 for variant in default waitfor; do
   body='{"url":"https://api.ipify.org","formats":["markdown"]}'
   [[ "$variant" == waitfor ]] && body='{"url":"https://api.ipify.org","formats":["markdown"],"waitFor":1000}'
-  seen="$(scraped_ip "$body")"
+  seen="$(scrape_seen_ip "$body")"
   if [[ -n "$seen" && "$seen" == "$vpn_ip" ]] && ips_differ "$host_ip" "$seen"; then
     pass "scrape_${variant}_sees_vpn_ip" "$(mask_ip "$seen")"
   else
@@ -54,7 +41,7 @@ fi
 
 # IPv6: the namespace must have no IPv6 address besides loopback, and a literal IPv6
 # destination (no DNS involved) must be unreachable.
-v6_addrs="$(dc exec -T gluetun sh -c "ip -6 -o addr show | awk '\$2 != \"lo\" {print \$2, \$4}'" 2>/dev/null | tr -d '' || true)"
+v6_addrs="$(dc exec -T gluetun sh -c "ip -6 -o addr show | awk '\$2 != \"lo\" {print \$2, \$4}'" 2>/dev/null | tr -d '\r' || true)"
 if ! dc ps --status running -q gluetun | grep -q .; then
   fail no_ipv6_addresses "could not inspect: gluetun not running"
 elif [[ -z "$v6_addrs" ]]; then
