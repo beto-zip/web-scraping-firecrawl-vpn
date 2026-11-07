@@ -1,0 +1,13 @@
+# Secrets
+.env
+.env.*
+!.env.example
+secrets/
+*.key
+*.conf
+
+# Logs
+*.log
+
+# Local Claude Code settings
+.claude/settings.local.json
