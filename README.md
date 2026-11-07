@@ -164,7 +164,7 @@ Bug reports, reproducible validation results and focused pull requests are welco
 ## Support the project
 
 > [!NOTE]
-> **Donations are not enabled.** A [GitHub Pages support-page prototype](https://beto-zip.github.io/web-scraping-firecrawl-vpn/donate/) is prepared but **not yet published or accepting funds**. The link will only become available after GitHub Pages is enabled. No cryptocurrency receiving addresses are configured. The preview supports Bitcoin, Monero and Ethereum only.
+> **Donations are not enabled.** A [GitHub Pages support-page prototype](https://beto-zip.github.io/web-scraping-firecrawl-vpn/donate/) is prepared but **not yet published or accepting funds**. The link will only become available after GitHub Pages is enabled. A Bitcoin public receiving address is staged in the prototype, but payments remain disabled in preview mode. Monero and Ethereum addresses are not configured.
 
 This project is free and open source. If optional donations are enabled later, they may help cover infrastructure, reproducible testing and documentation. Donations will never be required to use the code and will not buy support guarantees, feature priority or a security warranty.
 
