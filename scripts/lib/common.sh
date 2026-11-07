@@ -109,3 +109,13 @@ netns_probe() {
 }
 
 api_url() { echo "http://127.0.0.1:${FIRECRAWL_PORT:-3002}"; }
+
+# jq wrapper: local jq if installed, otherwise the pinned jq container image.
+JQ_IMAGE="${JQ_IMAGE:-ghcr.io/jqlang/jq:1.7.1}"
+jqr() {
+  if command -v jq >/dev/null 2>&1; then
+    jq "$@"
+  else
+    docker run --rm -i "$JQ_IMAGE" "$@"
+  fi
+}

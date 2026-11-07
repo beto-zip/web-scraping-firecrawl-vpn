@@ -43,6 +43,8 @@ fi
 for name in "${REQUIRED_SECRETS[@]}"; do
   if [[ -z "${!name:-}" ]]; then
     fail "secret_$name" "$name is empty"
+  elif [[ ! "${!name}" =~ ^[A-Za-z0-9._~-]+$ ]]; then
+    fail "secret_$name" "$name must use only URL-safe characters [A-Za-z0-9._~-] (it is embedded in connection URLs)"
   else
     pass "secret_$name"
   fi

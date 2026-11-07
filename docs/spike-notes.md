@@ -106,3 +106,9 @@ Ports in shared netns: 3000, 3002, 3004, 3005, 8000 — no conflicts observed.
 | `docker compose restart gluetun` (compose-managed) | **Yes** — `depends_on.restart: true` restarted api/playwright |
 
 **Ruling for spec §5 / plan Task 6:** (b) covers only compose-managed restarts (`docker compose restart gluetun`, `up` with recreate). Documented recovery command = `docker compose restart api playwright`. `test-recovery.sh` asserts: after `docker restart` → API unreachable (fail-closed); after `docker compose restart api playwright` → recovers.
+
+## Review Focus 3 — invalid `SERVER_COUNTRIES` (Task 3)
+
+`SERVER_COUNTRIES=Atlantis` → `docker compose up -d` exits rc=1 in seconds with
+`dependency failed to start: container ...-gluetun-1 is unhealthy`; gluetun log lists valid countries;
+`api` and `playwright` stay `Created` (never started, so no egress). No hang.

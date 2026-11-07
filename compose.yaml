@@ -1,0 +1,193 @@
+# web-scraping-firecrawl-vpn — self-hosted Firecrawl whose only egress is a Proton VPN WireGuard tunnel.
+# Community project, not affiliated with Firecrawl or Proton. See docs/architecture.md.
+#
+# api + playwright share gluetun's network namespace (network_mode: service:gluetun):
+# every outbound connection passes gluetun's firewall (tunnel + backend subnet only).
+# Databases live on an internal network with no internet access.
+name: web-scraping-firecrawl-vpn
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+x-depends-on-gluetun: &depends-on-gluetun
+  gluetun:
+    condition: service_healthy
+    restart: true
+
+services:
+  gluetun:
+    image: qmcgaw/gluetun:v3.41.3
+    cap_add: [NET_ADMIN]
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    environment:
+      VPN_SERVICE_PROVIDER: protonvpn
+      VPN_TYPE: wireguard
+      WIREGUARD_PRIVATE_KEY: ${WIREGUARD_PRIVATE_KEY:?set WIREGUARD_PRIVATE_KEY in .env}
+      SERVER_COUNTRIES: ${SERVER_COUNTRIES:-Netherlands}
+      SERVER_CITIES: ${SERVER_CITIES:-}
+      # Only the internal backend subnet is reachable outside the tunnel.
+      FIREWALL_OUTBOUND_SUBNETS: ${BACKEND_SUBNET:-172.30.0.0/24}
+      DNS_UPSTREAM_RESOLVER_TYPE: dot
+      HTTPPROXY: "off"
+      SHADOWSOCKS: "off"
+      HTTP_CONTROL_SERVER_AUTH_DEFAULT_ROLE: '{"auth":"apikey","apikey":"${GLUETUN_CONTROL_API_KEY:?set GLUETUN_CONTROL_API_KEY in .env}"}'
+      TZ: ${TZ:-UTC}
+    ports:
+      # Firecrawl API (served by `api` inside this namespace). Loopback by default.
+      - "${API_BIND_ADDRESS:-127.0.0.1}:${FIRECRAWL_PORT:-3002}:3002"
+    volumes:
+      - gluetun-data:/gluetun
+    networks:
+      - backend
+      - edge
+    restart: unless-stopped
+    logging: *logging
+
+  api:
+    image: ghcr.io/firecrawl/firecrawl:2.11.701@sha256:3fe1263dbf79984af344475fb075c0a557e9c529146bd2619a3af6bea0f28904
+    network_mode: service:gluetun
+    command: node dist/src/harness.js --start-docker
+    ulimits:
+      nofile: {soft: 65535, hard: 65535}
+    environment:
+      HOST: "0.0.0.0"
+      PORT: 3002
+      EXTRACT_WORKER_PORT: 3004
+      WORKER_PORT: 3005
+      ENV: local
+      HARNESS_STARTUP_TIMEOUT_MS: ${HARNESS_STARTUP_TIMEOUT_MS:-60000}
+      USE_DB_AUTHENTICATION: "false"
+      REDIS_URL: redis://:${REDIS_PASSWORD:?set REDIS_PASSWORD in .env}@redis:6379
+      REDIS_RATE_LIMIT_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      NUQ_RABBITMQ_URL: amqp://firecrawl:${RABBITMQ_PASSWORD:?set RABBITMQ_PASSWORD in .env}@rabbitmq:5672
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: postgres
+      POSTGRES_HOST: nuq-postgres
+      POSTGRES_PORT: 5432
+      # Same network namespace as playwright -> localhost.
+      PLAYWRIGHT_MICROSERVICE_URL: http://localhost:3000/scrape
+      NUM_WORKERS_PER_QUEUE: ${NUM_WORKERS_PER_QUEUE:-8}
+      CRAWL_CONCURRENT_REQUESTS: ${CRAWL_CONCURRENT_REQUESTS:-10}
+      MAX_CONCURRENT_JOBS: ${MAX_CONCURRENT_JOBS:-5}
+      BROWSER_POOL_SIZE: ${BROWSER_POOL_SIZE:-5}
+      BULL_AUTH_KEY: ${BULL_AUTH_KEY:-}
+      LOGGING_LEVEL: ${LOGGING_LEVEL:-info}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+    depends_on:
+      <<: *depends-on-gluetun
+      playwright:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      nuq-postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://localhost:3002/v0/health/liveness"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 60s
+    cpus: ${API_CPUS:-4}
+    mem_limit: ${API_MEMORY:-8G}
+    memswap_limit: ${API_MEMORY:-8G}
+    restart: unless-stopped
+    logging: *logging
+
+  playwright:
+    image: ghcr.io/firecrawl/playwright-service:sha-37a85335cdd6@sha256:eacaf2c256a6ff7fd1869e470d2969e97a037ff6c75ac01d38784d138a33f8eb
+    network_mode: service:gluetun
+    environment:
+      PORT: 3000
+      MAX_CONCURRENT_PAGES: ${CRAWL_CONCURRENT_REQUESTS:-10}
+    depends_on: *depends-on-gluetun
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 30s
+    security_opt:
+      - no-new-privileges:true
+    cap_drop: [ALL]
+    tmpfs:
+      - /tmp/.cache:noexec,nosuid,size=1g
+    cpus: ${PLAYWRIGHT_CPUS:-2}
+    mem_limit: ${PLAYWRIGHT_MEMORY:-4G}
+    memswap_limit: ${PLAYWRIGHT_MEMORY:-4G}
+    restart: unless-stopped
+    logging: *logging
+
+  redis:
+    image: redis:8.10.3-alpine
+    command: ["redis-server", "--bind", "0.0.0.0", "--requirepass", "${REDIS_PASSWORD}", "--appendonly", "yes"]
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a \"$$REDIS_PASSWORD\" --no-auth-warning ping | grep -q PONG"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    volumes:
+      - redis-data:/data
+    networks: [backend]
+    restart: unless-stopped
+    logging: *logging
+
+  rabbitmq:
+    image: rabbitmq:3.13.7-management
+    environment:
+      RABBITMQ_DEFAULT_USER: firecrawl
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "check_running"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks: [backend]
+    restart: unless-stopped
+    logging: *logging
+
+  nuq-postgres:
+    image: ghcr.io/firecrawl/nuq-postgres:sha-a7a63b4bfabf@sha256:d719b36160eac2fcbe16dc7e7360ddb9c82c40ea5da183d07bf4a755c6a0b2ae
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks: [backend]
+    restart: unless-stopped
+    logging: *logging
+
+networks:
+  backend:
+    # No gateway to the internet: databases cannot egress at all.
+    internal: true
+    ipam:
+      config:
+        - subnet: ${BACKEND_SUBNET:-172.30.0.0/24}
+  edge:
+    # Shared with API consumers (OpenClaw, examples/client): they call http://gluetun:3002
+    name: ${EDGE_NETWORK_NAME:-firecrawl-edge}
+
+volumes:
+  gluetun-data:
+  redis-data:
+  rabbitmq-data:
+  postgres-data:

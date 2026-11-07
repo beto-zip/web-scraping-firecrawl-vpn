@@ -36,3 +36,8 @@ test_port_in_use_warns() {
   assert_eq 0 "$rc" "port in use is a warning only"
   [[ "$out" == *WARN*38123* ]] || fail_test "no port warning: $out"
 }
+
+test_url_unsafe_password_rejected() {
+  sed 's|^REDIS_PASSWORD=.*|REDIS_PASSWORD=pa@ss/word|' "$F/valid.env" > "$TMP/unsafe.env"
+  assert_rc 1 "$V" --env "$TMP/unsafe.env" --skip-compose
+}

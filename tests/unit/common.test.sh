@@ -46,3 +46,5 @@ test_summary_passes_without_fail() {
   skip c y >/dev/null
   assert_rc 0 report_summary
 }
+
+test_jqr_extracts_field() { assert_eq "1" "$(echo '{"a":1}' | jqr -r .a)" jqr; }
