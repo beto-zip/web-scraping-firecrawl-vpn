@@ -23,6 +23,9 @@ done
 
 report_init "validate ($(basename "$ENV_FILE"))"
 
+# The env file is authoritative: drop inherited values for every checked variable.
+unset WIREGUARD_PRIVATE_KEY API_BIND_ADDRESS FIRECRAWL_PORT "${REQUIRED_SECRETS[@]}"
+
 if ! load_env "$ENV_FILE"; then
   fail env_file_readable "missing file or CRLF line endings (see message above)"
   report_summary || exit 1

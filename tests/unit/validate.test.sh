@@ -46,3 +46,9 @@ test_missing_bull_auth_key_rejected() {
   grep -v '^BULL_AUTH_KEY=' "$F/valid.env" > "$TMP/nobull.env"
   assert_rc 1 "$V" --env "$TMP/nobull.env" --skip-compose
 }
+
+# The file passed with --env is authoritative: inherited shell variables must not mask a missing value.
+test_inherited_env_does_not_mask_missing_value() {
+  grep -v '^BULL_AUTH_KEY=' "$F/valid.env" > "$TMP/nobull.env"
+  BULL_AUTH_KEY=from-shell assert_rc 1 env BULL_AUTH_KEY=from-shell "$V" --env "$TMP/nobull.env" --skip-compose
+}
