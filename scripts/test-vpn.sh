@@ -41,8 +41,7 @@ fi
 
 # IPv6: the namespace must have no IPv6 address besides loopback, and a literal IPv6
 # destination (no DNS involved) must be unreachable.
-v6_addrs="$(dc exec -T gluetun sh -c "ip -6 -o addr show | awk '\$2 != \"lo\" {print \$2, \$4}'" 2>/dev/null | tr -d '
-' || true)"
+v6_addrs="$(dc exec -T gluetun sh -c "ip -6 -o addr show | awk '\$2 != \"lo\" {print \$2, \$4}'" 2>/dev/null | tr -d '\r' || true)"
 if ! dc ps --status running -q gluetun | grep -q .; then
   fail no_ipv6_addresses "could not inspect: gluetun not running"
 elif [[ -z "$v6_addrs" ]]; then

@@ -72,3 +72,22 @@ test_scrape_seen_ip_extracts_trimmed_body() {
   curl() { printf '%s' '{"success":false,"error":"blocked"}'; }
   assert_eq "" "$(scrape_seen_ip '{}')" failure
 }
+
+# A script that traps INT must die by the signal after cleanup, so a parent shell running it
+# (run-tests.sh) stops on Ctrl-C instead of starting the next suite.
+test_reraise_stops_parent_on_ctrl_c() {
+  cat > "$TMP/child.sh" <<CHILD
+source "$ROOT/scripts/lib/common.sh"
+trap 'echo cleaned; reraise INT' INT
+sleep 5
+CHILD
+  set -m
+  bash -c "bash '$TMP/child.sh'; echo continued" > "$TMP/out" 2>&1 &
+  local pg=$!
+  sleep 1
+  kill -INT -- "-$pg" 2>/dev/null
+  wait "$pg" 2>/dev/null
+  set +m
+  grep -q cleaned "$TMP/out" || fail_test "child cleanup did not run: $(cat "$TMP/out")"
+  if grep -q continued "$TMP/out"; then fail_test "parent continued after Ctrl-C"; fi
+}

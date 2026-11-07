@@ -167,3 +167,7 @@ scrape_seen_ip() {
   curl -s -m 120 -X POST "$(api_url)/v2/scrape" -H 'Content-Type: application/json' -d "$1" 2>/dev/null \
     | jqr -r 'if .success == true then (.data.markdown // "" | gsub("\\s"; "")) else empty end' 2>/dev/null || true
 }
+
+# reraise <SIG>: use as the last command of a signal trap. Dies by that signal instead of a plain
+# `exit 130`, so a parent shell (run-tests.sh) also stops on Ctrl-C. EXIT traps still run.
+reraise() { trap - "$1"; kill -"$1" $$; }

@@ -26,9 +26,9 @@ restore_vpn() {
 trap '' PIPE
 trap 'restore_vpn; cleanup_listener' EXIT
 # On interruption (Ctrl-C, kill, SSH disconnect): restore the tunnel, then stop.
-trap 'restore_vpn; exit 130' INT
-trap 'restore_vpn; exit 143' TERM
-trap 'restore_vpn; exit 129' HUP
+trap 'restore_vpn; reraise INT' INT
+trap 'restore_vpn; reraise TERM' TERM
+trap 'restore_vpn; reraise HUP' HUP
 
 # PASS when the probe could run and the destination was NOT reachable.
 # Firewall DROP shows as timeout (28) or no DNS (6). Connection refused (7) or any

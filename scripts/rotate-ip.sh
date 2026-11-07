@@ -39,14 +39,15 @@ cleanup() {
     vpn_wait_up 180 || { echo "WARN  VPN did not come back; run: docker compose restart gluetun" >&2; } 2>/dev/null || true
     ROTATE_VPN_STOPPED=0
   fi
-  if [[ "$LOCK_OWNED" -eq 1 ]]; then rmdir "$LOCK_DIR" 2>/dev/null || true; fi
+  # Cleanup runs twice on signals (trap, then EXIT): never remove a lock taken meanwhile by another run.
+  if [[ "$LOCK_OWNED" -eq 1 ]] && rmdir "$LOCK_DIR" 2>/dev/null; then LOCK_OWNED=0; fi
 }
 # Output may go to a closed pipe: never let a failed write skip the restore.
 trap '' PIPE
 trap cleanup EXIT
-trap 'cleanup; exit 130' INT
-trap 'cleanup; exit 143' TERM
-trap 'cleanup; exit 129' HUP
+trap 'cleanup; reraise INT' INT
+trap 'cleanup; reraise TERM' TERM
+trap 'cleanup; reraise HUP' HUP
 
 if ! mkdir "$LOCK_DIR" 2>/dev/null; then
   echo "ERROR: rotation in progress (lock $LOCK_DIR); if no rotation is running, remove that directory" >&2
