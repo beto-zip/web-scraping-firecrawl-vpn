@@ -15,7 +15,7 @@ o scraping para em vez de vazar o IP do servidor.
   nenhum cliente HTTP consegue contornar o túnel ([por que não proxy?](docs/architecture.md#adr-1-shared-network-namespace-b1-instead-of-an-explicit-proxy)).
 - Destinos privados (host, LAN, Tailscale, metadata de nuvem) bloqueados a partir do scraping.
 - DNS sobre TLS pelo túnel, sem saída IPv6.
-- País/cidade de saída configuráveis no `.env`.
+- País/cidade de saída configuráveis no `.env`; novo IP de saída sob demanda com `scripts/rotate-ip.sh`, sem reinícios.
 - Rotas do host e VPNs existentes, como Tailscale, não são alteradas.
 - Scripts de teste que comprovam tudo isso e geram relatório com dados mascarados.
 
@@ -47,6 +47,7 @@ Outros containers (por exemplo, uma plataforma de agentes de IA como o OpenClaw)
 | `scripts/test-firecrawl.sh` | Scrape e crawl funcionam |
 | `scripts/test-vpn.sh` | Sites veem o IP da VPN, nunca o do host; sem vazamento de DNS e IPv6 |
 | `scripts/test-killswitch.sh` | Com o túnel parado nada sai; destinos privados bloqueados |
+| `scripts/test-rotation.sh` | A rotação troca o IP de saída; scrapes em andamento não vazam; sem reinícios |
 | `scripts/test-recovery.sh` | Dados persistem; comportamento após reinício do Gluetun |
 | `scripts/run-tests.sh` | Roda tudo e grava `reports/report-<UTC>.txt` (segredos e IPs mascarados) |
 

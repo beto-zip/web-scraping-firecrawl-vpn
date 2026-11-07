@@ -38,7 +38,19 @@ Change the subnet in `compose.yaml` (`networks.backend` and `FIREWALL_OUTBOUND_S
 
 ## A site blocks the scrape or shows a CAPTCHA
 
-Some sites block VPN/datacenter IPs. Try another `SERVER_COUNTRIES`/`SERVER_CITIES`. Evasion is out of scope.
+Some sites block VPN/datacenter IPs. Get a new exit IP with `./scripts/rotate-ip.sh` or try another
+`SERVER_COUNTRIES`/`SERVER_CITIES`. Automatic block handling is not implemented yet.
+
+## `rotate-ip.sh` says "rotation in progress"
+
+Another rotation holds the lock `.rotate.lock`. If none is running (the previous one was killed with
+`SIGKILL`), remove it: `rmdir .rotate.lock`. If the tunnel was left stopped (scrapes fail, rotation exits 2),
+run `docker compose restart gluetun` followed by `docker compose restart api playwright`.
+
+## `rotate-ip.sh` exits 1 ("exit IP unchanged")
+
+Every reconnect landed on the same server. Widen `SERVER_COUNTRIES`/`SERVER_CITIES` in `.env` and run
+`docker compose up -d`.
 
 ## Scrape returns `SCRAPE_DNS_RESOLUTION_ERROR` for every URL
 

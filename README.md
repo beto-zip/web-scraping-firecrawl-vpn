@@ -15,7 +15,7 @@ scraping stops instead of leaking your server's IP.
   client can bypass the tunnel ([why not a proxy?](docs/architecture.md#adr-1-shared-network-namespace-b1-instead-of-an-explicit-proxy)).
 - Private destinations (host, LAN, Tailscale, cloud metadata) blocked from the scraping side.
 - DNS over TLS through the tunnel, no IPv6 egress.
-- Exit country/city selectable in `.env`.
+- Exit country/city selectable in `.env`; new exit IP on demand with `scripts/rotate-ip.sh`, no restarts.
 - Host routes and existing VPNs such as Tailscale are untouched.
 - Test scripts that prove all of the above and write a redacted report.
 
@@ -47,6 +47,7 @@ Other containers (for example an AI agent platform such as OpenClaw) join the `f
 | `scripts/test-firecrawl.sh` | Scrape and crawl work |
 | `scripts/test-vpn.sh` | Target sites see the VPN IP, never the host IP; DNS and IPv6 do not leak |
 | `scripts/test-killswitch.sh` | With the tunnel stopped nothing leaves; private destinations blocked |
+| `scripts/test-rotation.sh` | Rotation changes the exit IP; in-flight scrapes never leak; no restarts |
 | `scripts/test-recovery.sh` | Data persists; behavior after Gluetun restarts |
 | `scripts/run-tests.sh` | Runs everything, writes `reports/report-<UTC>.txt` (secrets and IPs masked) |
 
