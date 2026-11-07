@@ -105,7 +105,7 @@ netns_probe() {
   local cid
   cid="$(dc ps -q gluetun 2>/dev/null || true)"
   [[ -n "$cid" ]] || { echo "gluetun not running" >&2; return 125; }
-  docker run --rm --network "container:$cid" "$CURL_IMAGE" "$@"
+  docker run --rm -i --network "container:$cid" "$CURL_IMAGE" "$@"
 }
 
 api_url() { echo "http://127.0.0.1:${FIRECRAWL_PORT:-3002}"; }
