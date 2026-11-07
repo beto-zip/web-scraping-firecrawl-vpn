@@ -11,7 +11,7 @@
 
 [English](README.md) · **Português (Brasil)**
 
-[Por quê?](#por-que-este-projeto) · [Arquitetura](#arquitetura) · [Instalação](#início-rápido) · [Segurança](#limites-de-segurança) · [Roadmap](#status-do-projeto-e-roadmap)
+[Por quê?](#por-que-este-projeto) · [Arquitetura](#arquitetura) · [Instalação](#início-rápido) · [Segurança](#limites-de-segurança) · [Roadmap](#status-do-projeto-e-roadmap) · [Apoio](#apoie-o-projeto)
 
 </div>
 
@@ -144,7 +144,7 @@ A reconexão pode manter o mesmo IP; requisições em andamento podem falhar. Ap
 | Operação simplificada | Executar ferramentas inteiramente via Docker | [Planejado #2](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues/2) |
 | Resiliência | Detecção de bloqueios, políticas de retry e fluxo anti-bloqueio | [Planejado #3](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues/3) |
 | Orquestração | Fila persistente de URLs com retomada | [Planejado #4](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues/4) |
-| Apoio comunitário | Avaliar doações/patrocínios voluntários **após** validação e release pública estável | [Issue futura #10](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues/10) — sem links de pagamento |
+| Apoio comunitário | Preparar a página de doações no GitHub Pages **sem habilitar pagamentos** antes da validação e versão estável | [Issue futura #10](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues/10) — apenas protótipo |
 
 Acompanhe o trabalho nas [issues do GitHub](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues). Funcionalidades futuras **não** estão disponíveis na stack atual.
 
@@ -160,6 +160,15 @@ Acompanhe o trabalho nas [issues do GitHub](https://github.com/beto-zip/web-scra
 | [Exemplo de cliente](examples/client/README.md) | Integração de outra aplicação Docker |
 
 Relatos de bugs, testes reproduzíveis e pull requests objetivos são bem-vindos. Utilize os [templates de issues](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues/new/choose). Não publique segredos, IPs completos ou logs sensíveis. Respeite os termos da Proton e as regras/robots dos sites acessados. Resolução automática de CAPTCHA **não** está implementada.
+
+## Apoie o projeto
+
+> [!NOTE]
+> **As doações ainda não estão habilitadas.** O [protótipo da página de apoio no GitHub Pages](https://beto-zip.github.io/web-scraping-firecrawl-vpn/donate/) está preparado, mas **ainda não foi publicado nem recebe dinheiro**. O link só funcionará depois da ativação do GitHub Pages. Um endereço público Bitcoin foi preparado no protótipo, mas os pagamentos permanecem desabilitados no modo de prévia. Os endereços de Monero e Ethereum ainda não foram configurados.
+
+Este projeto é gratuito e de código aberto. Futuramente, contribuições voluntárias poderão apoiar infraestrutura, testes reproduzíveis e documentação. Doações nunca serão necessárias para utilizar o código nem darão garantias de suporte, prioridade em funcionalidades ou segurança.
+
+**Pré-requisitos para ativar:** [validação do deploy #6](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues/6) e [planejamento de doações #10](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues/10). As [instruções e cuidados](docs/donate/README.md) detalham a ativação futura.
 
 ## Licença
 
