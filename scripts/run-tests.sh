@@ -32,7 +32,8 @@ overall=0
     echo
   done
   if [[ "$overall" -eq 0 ]]; then echo "RESULT: ALL PASS"; else echo "RESULT: FAILURES PRESENT"; fi
-} | redact | tee "$REPORT"
+} | ( trap '' INT HUP; redact ) | ( trap '' INT HUP; tee "$REPORT" )
+# redact/tee ignore Ctrl-C so the running suite can still write while it restores state.
 
 echo "report written to: $REPORT"
 grep -q '^RESULT: ALL PASS$' "$REPORT"
