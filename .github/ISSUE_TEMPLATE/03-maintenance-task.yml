@@ -1,0 +1,65 @@
+name: "Maintenance / technical task"
+description: "Track bug debt, refactors, CI, security hardening and documentation tasks."
+title: "chore: "
+body:
+  - type: "markdown"
+    attributes:
+      value: "Use this template for bounded engineering/maintenance work, such as issue #5. For user-facing new behavior, prefer **Feature request**; for reproducible defects, use **Bug report**. Do not post sensitive values or vulnerability details."
+  - type: "dropdown"
+    id: "workstream"
+    attributes:
+      label: "Workstream"
+      description: "Where will the code primarily change?"
+      options:
+        - "Shell scripts / refactoring"
+        - "Gluetun / VPN / network isolation"
+        - "Firecrawl / Playwright"
+        - "Docker Compose / infrastructure"
+        - "CI / dependency updates"
+        - "Security hardening"
+        - "Documentation"
+        - "Other"
+    validations:
+      required: true
+  - type: "textarea"
+    id: "objective"
+    attributes:
+      label: "Objective and scope"
+      description: "Describe the problem to resolve, expected changes and explicit non-goals."
+    validations:
+      required: true
+  - type: "textarea"
+    id: "done"
+    attributes:
+      label: "Definition of done"
+      description: "Provide concrete deliverables and pass/fail acceptance criteria."
+      placeholder: "- [ ] ...\n- [ ] ..."
+    validations:
+      required: true
+  - type: "textarea"
+    id: "validation"
+    attributes:
+      label: "Validation plan"
+      description: "Identify commands and relevant unit/live tests. Note what cannot be tested without VPN credentials."
+    validations:
+      required: true
+  - type: "dropdown"
+    id: "risk"
+    attributes:
+      label: "Security / network risk"
+      description: "Be conservative: changes touching network safeguards need regression tests."
+      options:
+        - "No expected security/network impact"
+        - "VPN egress / tunnel-down fail-closed / DNS / IPv6"
+        - "Private address isolation / API exposure / SSRF"
+        - "Secret handling / authentication"
+        - "Needs security review"
+    validations:
+      required: true
+  - type: "textarea"
+    id: "dependencies"
+    attributes:
+      label: "Dependencies / references"
+      description: "Link related issues, ADRs, or planned work; note blockers."
+    validations:
+      required: false

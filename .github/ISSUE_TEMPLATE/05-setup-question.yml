@@ -1,0 +1,69 @@
+name: "Setup / usage question"
+description: "Request help with installation, Proton WireGuard configuration or usage."
+title: "question: "
+labels:
+  - "question"
+body:
+  - type: "markdown"
+    attributes:
+      value: "Before asking, consult docs/installation.md, docs/protonvpn.md and docs/troubleshooting.md. **Never share .env files, downloaded Proton WireGuard .conf files, passwords, private keys, API tokens or unredacted IP addresses.** For a suspected security vulnerability, consult docs/security.md rather than opening an issue."
+  - type: "checkboxes"
+    id: "precheck"
+    attributes:
+      label: "Pre-submission checks"
+      options:
+        - label: "I checked the relevant installation, VPN and troubleshooting docs."
+          required: true
+        - label: "I redacted confidential values and addresses in everything I share."
+          required: true
+  - type: "dropdown"
+    id: "step"
+    attributes:
+      label: "Where are you blocked?"
+      description: "Choose the closest stage."
+      options:
+        - "Generating a Proton WireGuard config"
+        - "Validating the .env"
+        - "Docker Compose startup / container health"
+        - "Calling the Firecrawl API / connecting a client"
+        - "VPN country, DNS or connection behavior"
+        - "Running test scripts / recovering after restart"
+        - "Other"
+    validations:
+      required: true
+  - type: "textarea"
+    id: "goal"
+    attributes:
+      label: "What are you trying to do?"
+      description: "State the desired result."
+    validations:
+      required: true
+  - type: "textarea"
+    id: "problem"
+    attributes:
+      label: "What happened?"
+      description: "Include errors and commands with secret values removed."
+    validations:
+      required: true
+  - type: "textarea"
+    id: "attempts"
+    attributes:
+      label: "What have you already tried?"
+      description: "List documentation steps, commands and results."
+    validations:
+      required: true
+  - type: "textarea"
+    id: "environment"
+    attributes:
+      label: "Environment"
+      description: "OS, Docker/Compose versions, repository revision and relevant non-secret config."
+    validations:
+      required: false
+  - type: "textarea"
+    id: "logs"
+    attributes:
+      label: "Sanitized output"
+      description: "Optional minimal error snippet or redacted docker compose ps/logs."
+      render: "shell"
+    validations:
+      required: false

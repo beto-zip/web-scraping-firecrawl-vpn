@@ -1,0 +1,63 @@
+name: "Validation / test task"
+description: "Plan and record acceptance testing, especially on a real VPN-equipped host."
+title: "test: "
+body:
+  - type: "markdown"
+    attributes:
+      value: "Use this for test plans such as issue #6. Live VPN, host networking and Tailscale interactions cannot be proven solely by GitHub Actions. Never post raw IPs, Proton configs, private keys, credentials or unredacted test reports."
+  - type: "dropdown"
+    id: "environment_type"
+    attributes:
+      label: "Test environment"
+      description: "Select the closest validation target."
+      options:
+        - "Local Linux host with Proton VPN"
+        - "Linux host with Tailscale / OpenClaw"
+        - "CI / mocked test environment"
+        - "Docker-only development machine"
+        - "Other"
+    validations:
+      required: true
+  - type: "textarea"
+    id: "objective"
+    attributes:
+      label: "Validation objective"
+      description: "What guarantee, regression or acceptance requirement must be verified?"
+    validations:
+      required: true
+  - type: "textarea"
+    id: "preconditions"
+    attributes:
+      label: "Preconditions / setup"
+      description: "List required stack state, Docker/Compose versions, fake vs real credentials, and services involved. Do not paste secrets."
+    validations:
+      required: true
+  - type: "textarea"
+    id: "scenarios"
+    attributes:
+      label: "Test scenarios / checklist"
+      description: "Use executable steps and expected observations."
+      placeholder: "- [ ] Verify VPN-only egress using ./scripts/test-vpn.sh\n- [ ] Verify kill switch using ./scripts/test-killswitch.sh\n- [ ] ..."
+    validations:
+      required: true
+  - type: "textarea"
+    id: "pass_fail"
+    attributes:
+      label: "Pass / fail criteria"
+      description: "How will you distinguish passing results from failures, including no-IP-leak and fail-closed expectations?"
+    validations:
+      required: true
+  - type: "textarea"
+    id: "evidence"
+    attributes:
+      label: "Evidence to capture"
+      description: "Describe sanitized artifacts/reports to attach (e.g., reports/report-<UTC>.txt). Explain any limitations."
+    validations:
+      required: false
+  - type: "textarea"
+    id: "related"
+    attributes:
+      label: "Related issues / dependencies"
+      description: "Reference features, bugs, ADRs or host dependencies."
+    validations:
+      required: false
