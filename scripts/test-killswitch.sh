@@ -119,6 +119,18 @@ if ! dc ps --status running -q gluetun | grep -q .; then
 fi
 
 # --- Tunnel up: private destinations must still be blocked -----------------------
+# Raw/packet sockets bypass netfilter: scraping containers must not hold CAP_NET_RAW (bit 13).
+for svc in api playwright; do
+  capeff="$(dc exec -T "$svc" sh -c "grep CapEff /proc/self/status" 2>/dev/null | awk '{print $2}' | tr -d '\r' || true)"
+  if [[ -z "$capeff" ]]; then
+    fail "no_net_raw_$svc" "could not read capabilities of $svc"
+  elif (( (16#$capeff >> 13) & 1 )); then
+    fail "no_net_raw_$svc" "$svc has CAP_NET_RAW (CapEff=$capeff): raw sockets could bypass the firewall"
+  else
+    pass "no_net_raw_$svc" "CapEff=$capeff"
+  fi
+done
+
 post_rules_loaded post_rules_loaded
 check_edge_peer_blocked edge_peer_blocked
 # No positive control is possible for these on most hosts: they confirm, the edge check proves.

@@ -55,6 +55,11 @@ services:
     image: ghcr.io/firecrawl/firecrawl:2.11.701@sha256:3fe1263dbf79984af344475fb075c0a557e9c529146bd2619a3af6bea0f28904
     network_mode: service:gluetun
     command: node dist/src/harness.js --start-docker
+    # The image runs as root: drop every capability. CAP_NET_RAW in particular would allow
+    # packet sockets that bypass gluetun's firewall.
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
     ulimits:
       nofile: {soft: 65535, hard: 65535}
     environment:
