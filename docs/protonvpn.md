@@ -44,6 +44,29 @@ Generate a new configuration in the Proton dashboard, revoke the old one, update
 ./scripts/test-vpn.sh
 ```
 
+## Rotate the exit IP
+
+```bash
+./scripts/rotate-ip.sh                  # up to 3 reconnects until the IP changes
+./scripts/rotate-ip.sh --max-attempts 5 # 1-10
+```
+
+It reconnects the tunnel through Gluetun's control server; Gluetun picks a random server matching
+`SERVER_COUNTRIES`/`SERVER_CITIES`, so the IP usually changes on the first attempt (about 15 s).
+`api` and `playwright` are not restarted. Scrapes running during the reconnect fail instead of leaving
+through the host. Output shows masked IPs only.
+
+| Exit code | Meaning |
+|---|---|
+| 0 | Rotated |
+| 1 | IP unchanged after all attempts: the filter matches too few servers, widen it |
+| 2 | Control server or tunnel error (stack down, wrong `GLUETUN_CONTROL_API_KEY`, tunnel not back in 180 s) |
+| 3 | Another rotation is running |
+| 64 | Bad arguments |
+
+Interrupting it (Ctrl-C, `kill`, SSH disconnect) restores the tunnel before exiting.
+`./scripts/test-rotation.sh` proves the IP changes without leaking the host IP or restarting services.
+
 ## Responsible use
 
 Follow Proton's terms of service and the terms and `robots.txt` of the sites you scrape.

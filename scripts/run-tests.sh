@@ -15,7 +15,7 @@ SKIP_RECOVERY=0
 mkdir -p "$FVPN_ROOT/reports"
 REPORT="$FVPN_ROOT/reports/report-$(date -u +%Y%m%dT%H%M%SZ).txt"
 
-suites=(validate.sh test-firecrawl.sh test-vpn.sh test-killswitch.sh)
+suites=(validate.sh test-firecrawl.sh test-vpn.sh test-killswitch.sh test-rotation.sh)
 [[ "$SKIP_RECOVERY" -eq 0 ]] && suites+=(test-recovery.sh)
 
 overall=0
