@@ -11,7 +11,7 @@
 
 [English](README.md) · **Português (Brasil)**
 
-[Visão geral](#visão-geral) · [Arquitetura](#arquitetura) · [Início rápido](#início-rápido) · [Segurança](#segurança-e-limitações) · [Status](#status-do-projeto) · [Documentação](#documentação) · [Apoio](#apoie-o-projeto-planejado)
+[Visão geral](#visão-geral) · [Arquitetura](#arquitetura) · [Início rápido](#início-rápido) · [Segurança](#segurança-e-limitações) · [Status](#status-do-projeto) · [Documentação](#documentação)
 
 </div>
 
@@ -139,7 +139,6 @@ Consulte: [controles de segurança e riscos residuais](docs/security.md) · [lim
 | Operação simplificada só com Docker | [Planejado #2](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues/2) |
 | Resiliência, tentativas e detecção de bloqueios | [Planejado #3](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues/3) |
 | Fila persistente e retomada de trabalhos | [Planejado #4](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues/4) |
-| Doações voluntárias | [Backlog #10](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues/10); não habilitadas |
 
 Acompanhe as [issues do GitHub](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues). Funcionalidades planejadas **ainda não estão presentes** na versão atual.
 
@@ -161,13 +160,3 @@ Use os [templates de issues](.github/ISSUE_TEMPLATE) para relatar bugs e resulta
 ## Licença
 
 Os arquivos próprios deste repositório estão sob a licença [MIT](LICENSE). As imagens de terceiros mantêm suas próprias licenças (incluindo AGPL-3.0 do Firecrawl); a licença MIT deste repositório não substitui essas obrigações.
-
-## Apoie o projeto (planejado)
-
-O projeto é gratuito e de código aberto. Existe um **protótipo de página de doações apenas com criptomoedas** (Bitcoin, Monero e Ethereum), mas **as doações não estão habilitadas**. O endereço público Bitcoin já foi adicionado ao protótipo; Monero e Ethereum continuam sem configuração.
-
-- [Veja o código da página de doações](docs/donate/index.html) e as [instruções/status](docs/donate/README.md).
-- **A publicação no GitHub Pages não foi confirmada.** Por enquanto, não anunciamos um link como página de arrecadação ativa.
-- A arrecadação só será considerada após a [validação do servidor #6](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues/6) e os [requisitos de release e financiamento da issue #10](https://github.com/beto-zip/web-scraping-firecrawl-vpn/issues/10).
-
-Qualquer contribuição futura será **voluntária**, sem garantia de suporte, prioridade de funcionalidades, acesso especial ou segurança.
