@@ -35,32 +35,7 @@ Configurar um proxy HTTP não garante que todos os scrapers, navegadores, consul
 
 ## Arquitetura
 
-```mermaid
-flowchart LR
-    HOST["Cliente local<br/>127.0.0.1:3002"]
-    AGENT["Containers confiáveis<br/>firecrawl-edge"]
-
-    subgraph SHARED["Namespace de rede compartilhado — Gluetun"]
-        GL["Gluetun<br/>WireGuard + firewall + DNS"]
-        FC["API Firecrawl + workers<br/>:3002"]
-        PW["Playwright<br/>:3000"]
-        FC -->|"localhost:3000"| PW
-    end
-
-    subgraph PRIVATE["Rede de backend interna"]
-        REDIS[("Redis")]
-        QUEUE[("RabbitMQ")]
-        PG[("PostgreSQL")]
-    end
-
-    HOST -->|"porta publicada em loopback"| GL
-    AGENT -->|"gluetun:3002"| GL
-    FC --> REDIS
-    FC --> QUEUE
-    FC --> PG
-    GL -->|"WireGuard / tun0"| VPN["Proton VPN"]
-    VPN --> WEB["Sites públicos"]
-```
+![Arquitetura: clientes locais e confiáveis chamam Firecrawl. Firecrawl e Playwright compartilham Gluetun e usam Proton VPN para saída pública; Redis, RabbitMQ e PostgreSQL ficam em rede interna.](docs/assets/architecture.pt-BR.svg)
 
 **Ponto essencial:** a API e o navegador compartilham a rede do Gluetun, enquanto os bancos de dados ficam em uma rede interna separada. Isso representa o **projeto da arquitetura**, não uma comprovação de eliminação de todos os riscos e vazamentos. Detalhes: [arquitetura](docs/architecture.md) e [modelo de segurança](docs/security.md).
 
